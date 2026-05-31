@@ -22,7 +22,7 @@
     },
     "status": "PASS",
     "error": "",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "executed_at": "2026-06-01T00:38:42Z",
     "_comment": "Core proximity search functionality - returns businesses sorted by distance"
   },
   {
@@ -45,7 +45,7 @@
     },
     "status": "PASS",
     "error": "",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "executed_at": "2026-06-01T00:38:42Z",
     "_comment": "Semantic search with Voyage AI embeddings - different preferences yield different rankings"
   },
   {
@@ -64,9 +64,9 @@
       "username": "string",
       "token": "string"
     },
-    "status": "PASS",
-    "error": "",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "status": "FAIL",
+    "error": "expected 201 Created, got 409 Conflict",
+    "executed_at": "2026-06-01T00:38:35Z",
     "_comment": "User registration endpoint"
   },
   {
@@ -87,7 +87,7 @@
     },
     "status": "PASS",
     "error": "",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "executed_at": "2026-06-01T00:38:35Z",
     "_comment": "User authentication endpoint - returns JWT token"
   },
   {
@@ -108,9 +108,9 @@
       "longitude": "number",
       "semantic_search_blob": "string"
     },
-    "status": "FAIL",
-    "error": "expected 200 OK, got 401 Unauthorized",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-06-01T00:44:06Z",
     "_comment": "Public endpoint to view business details"
   },
   {
@@ -134,9 +134,9 @@
       "name": "string",
       "embedding_vector": "string"
     },
-    "status": "FAIL",
-    "error": "expected 201 Created, got 501 Not Implemented",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-06-01T00:44:06Z",
     "_comment": "Protected endpoint - requires JWT token, calls Voyage AI to generate embedding"
   },
   {
@@ -155,9 +155,9 @@
       "description": "string",
       "embedding_vector": "string"
     },
-    "status": "FAIL",
-    "error": "expected 200 OK, got 501 Not Implemented",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-06-01T00:44:06Z",
     "_comment": "Protected endpoint - only business owner can update"
   },
   {
@@ -169,9 +169,9 @@
     "method": "DELETE",
     "request_payload": {},
     "response_payload": {},
-    "status": "FAIL",
-    "error": "expected 204 No Content, got 501 Not Implemented",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-06-01T00:44:06Z",
     "_comment": "Protected endpoint - only business owner can delete"
   },
   {
@@ -184,8 +184,8 @@
     "request_payload": {},
     "response_payload": {},
     "status": "FAIL",
-    "error": "connect ECONNREFUSED - Frontend server not running on port 5173",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "error": "connect ECONNREFUSED 127.0.0.1:53710",
+    "executed_at": "2026-06-01T00:38:49Z",
     "_comment": "Puppeteer test for search interface"
   },
   {
@@ -198,8 +198,8 @@
     "request_payload": {},
     "response_payload": {},
     "status": "FAIL",
-    "error": "connect ECONNREFUSED - Frontend server not running on port 5173",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "error": "connect ECONNREFUSED 127.0.0.1:53710",
+    "executed_at": "2026-06-01T00:38:49Z",
     "_comment": "Complete search flow test"
   },
   {
@@ -212,8 +212,8 @@
     "request_payload": {},
     "response_payload": {},
     "status": "FAIL",
-    "error": "connect ECONNREFUSED - Frontend server not running on port 5173",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "error": "connect ECONNREFUSED 127.0.0.1:53710",
+    "executed_at": "2026-06-01T00:38:49Z",
     "_comment": "Business details view test"
   },
   {
@@ -226,8 +226,8 @@
     "request_payload": {},
     "response_payload": {},
     "status": "FAIL",
-    "error": "connect ECONNREFUSED - Frontend server not running on port 5173",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "error": "connect ECONNREFUSED 127.0.0.1:53710",
+    "executed_at": "2026-06-01T00:38:49Z",
     "_comment": "Verify semantic search works in UI"
   },
   {
@@ -240,8 +240,8 @@
     "request_payload": {},
     "response_payload": {},
     "status": "FAIL",
-    "error": "connect ECONNREFUSED - Frontend server not running on port 5173",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "error": "connect ECONNREFUSED 127.0.0.1:53710",
+    "executed_at": "2026-06-01T00:38:49Z",
     "_comment": "UI layout requirement"
   },
   {
@@ -254,8 +254,8 @@
     "request_payload": {},
     "response_payload": {},
     "status": "FAIL",
-    "error": "read ECONNRESET - Frontend server not running on port 5173",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "error": "connect ECONNREFUSED 127.0.0.1:53708",
+    "executed_at": "2026-06-01T00:38:44Z",
     "_comment": "Authentication UI test"
   },
   {
@@ -268,8 +268,8 @@
     "request_payload": {},
     "response_payload": {},
     "status": "FAIL",
-    "error": "read ECONNRESET - Frontend server not running on port 5173",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "error": "connect ECONNREFUSED 127.0.0.1:53708",
+    "executed_at": "2026-06-01T00:38:44Z",
     "_comment": "Sign in flow and tab navigation"
   },
   {
@@ -282,8 +282,8 @@
     "request_payload": {},
     "response_payload": {},
     "status": "FAIL",
-    "error": "read ECONNRESET - Frontend server not running on port 5173",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "error": "connect ECONNREFUSED 127.0.0.1:53708",
+    "executed_at": "2026-06-01T00:38:44Z",
     "_comment": "Business management UI"
   },
   {
@@ -296,8 +296,8 @@
     "request_payload": {},
     "response_payload": {},
     "status": "FAIL",
-    "error": "read ECONNRESET - Frontend server not running on port 5173",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "error": "connect ECONNREFUSED 127.0.0.1:53708",
+    "executed_at": "2026-06-01T00:38:44Z",
     "_comment": "Create business form"
   },
   {
@@ -310,8 +310,8 @@
     "request_payload": {},
     "response_payload": {},
     "status": "FAIL",
-    "error": "read ECONNRESET - Frontend server not running on port 5173",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "error": "connect ECONNREFUSED 127.0.0.1:53708",
+    "executed_at": "2026-06-01T00:38:44Z",
     "_comment": "Complete create business flow"
   },
   {
@@ -324,8 +324,8 @@
     "request_payload": {},
     "response_payload": {},
     "status": "FAIL",
-    "error": "read ECONNRESET - Frontend server not running on port 5173",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "error": "connect ECONNREFUSED 127.0.0.1:53708",
+    "executed_at": "2026-06-01T00:38:44Z",
     "_comment": "Postal code geocoding feature"
   },
   {
@@ -338,8 +338,8 @@
     "request_payload": {},
     "response_payload": {},
     "status": "FAIL",
-    "error": "read ECONNRESET - Frontend server not running on port 5173",
-    "executed_at": "2026-05-31T15:23:51Z",
+    "error": "connect ECONNREFUSED 127.0.0.1:53708",
+    "executed_at": "2026-06-01T00:38:44Z",
     "_comment": "Delete confirmation UX"
   }
 ]
