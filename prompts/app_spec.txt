@@ -1,0 +1,408 @@
+<project_specification>
+  <project_name>Proximity Service with Vibe Score Ranking</project_name>
+
+  <overview>
+    Design a proximity service to discover k-nearest places such as restaurant, hotels, museums.
+    This is core component that power finding the best nearest restaurants in Google Map or Yelp.
+  </overview>
+
+  <technology_stack>
+    <api_key>
+      You can use an API key located at /tmp/api-key for testing. You will not be allowed to read
+      this file, but you can reference it in code.
+    </api_key>
+    <frontend>
+      <framework>React with Vite</framework>
+      <styling>Tailwind CSS (via CDN)</styling>
+      <state_management>React hooks and context</state_management>
+      <routing>React Router for navigation</routing>
+      <port>Only launch on port {frontend_port}</port>
+    </frontend>
+    <backend>
+      <runtime>Node.js with Express</runtime>
+      <database>PostgreSQL with PostGiS and Hierarchical Navigable Small World (HNSW) indexing for
+        closeness</database>
+      <api_integration>Voyage AI `voyage-4-lite` model for both DB embedding vector and closeness
+        retrieval
+        during query</api_integration>
+    </backend>
+    <communication>
+      <api>RESTful endpoints</api>
+    </communication>
+    <functional_test>
+      <frontend>Puppeteer</frontend>
+      <backend>Vitest, Supertest</backend>
+    </functional_test>
+  </technology_stack>
+
+  <prerequisites>
+    <environment_setup>
+      - Frontend dependencies pre-installed via pnpm
+      - Backend code goes in /server directory
+      - Install backend dependencies as needed
+    </environment_setup>
+  </prerequisites>
+
+  <core_features>
+    <consumer_pages>
+    <authenticated>No</authenticated>
+    <search_page>
+      <search_interface>
+        - The Main Search (Sticky Top Bar): Keep the primary "What" (preference/keywords)
+        and "Where" (location input) fields permanently locked in the top navigation bar.
+        - Location input or "Near me"
+        - Preference/keywords input eg. cafe with good wifi for studying
+        - Search button
+        - After search result is rendered, show location and nearby places in Map Marker (Pin)
+        - Map Marker (Pin): A visual anchor placed on an interactive map representing the place's
+        physical location
+        - Infowindow (Popup): A tiny card-like bubble that appears directly above a map marker
+        when a user taps on it, showing a quick preview of the place (name, description, review
+        summary text)
+        - Infowindow is just for preview, **not** need to have link to business details page.
+      </search_interface>
+
+      <search_result>
+        - Display 5 business per page results from nearby_service
+        - Shows a picture, business name and description
+        - On click open business details page
+      </search_result>
+    </search_page>
+
+    <business_details>
+      - closable layover
+      - display business name, address, description, review summary text
+      - business pictures in horizontal tiles (paginated)
+      - display recent 5 reviews and its paginated photos grouped by review
+      - Review button if user is signed in. Otherwise leave text "Sign in to review this business"
+    </business_details>
+  </core_features>
+
+  <features>
+    <submit_review>
+      - closable layover
+      - display business name, address, description
+      - form with review text, upload review picture
+      - submit button
+      - on submit, display submission and close layover
+    </submit_review>
+    </consumer_pages>
+
+    <business_page>
+      <authenticated>Yes</authenticated>
+      <multiple_business_allowed>Yes</multiple_business_allowed>
+
+      <add_business>
+        - Form to create `Business` (refer to database_schema section for details)
+        - Button to 'Show in Map Marker' and convert postal / zip code to lon, lat.
+        Do not need to render map maker on form value change.
+        - Map Marker (Pin): A visual anchor placed on an interactive map representing the place's
+        physical location
+        - Infowindow (Popup): A tiny card-like bubble that appears directly above a map marker
+        when a user taps on it, showing a quick preview of the place (name, description, review
+        summary text)
+        - Infowindow is just for preview, **not** need to have link to business details page.
+        - Make a call to backend POST /v1/business
+      </add_business>
+
+      <display_business>
+        - Cards with business of this business owner
+        - Delete button to delete this business, backend API DELETE /v1/business/:id, after pop-up
+        confirmation
+        - Edit button to open edit_business
+      </display_business>
+
+      <edit_business>
+        - Populate edit form with current information
+        - Make a call to backend PUT /v1/business/:id
+      </edit_business>
+    </business_page>
+  </features>
+
+  <database_schema>
+    <tables>
+      <businesses description="PostgreSQL core relational entity for geospatial discovery">
+        ```typescript
+        interface Business {
+        id: string; // Primary Key (e.g., "cafe_123")
+        address: string; // Full address for visitor
+        postal_code: string;
+        name: string; // Public display name of the establishment
+        description: string; // Up to 280 characters, static owner description
+        latitude: number; // WGS84 standard coordinate (-90 to 90)
+        longitude: number; // WGS84 standard coordinate (-180 to 180)
+        semantic_search_blob: string; // Density-optimized human readable summary of reviews
+        embedding_vector: vector(1024); // summary of reviews in vector
+        }
+        ```
+      </businesses>
+
+    </tables>
+  </database_schema>
+
+  <api_endpoints_summary>
+    <business>
+      <api_name>GET /v1/business/:id</api_name>
+      <api_name>POST /v1/business</api_name>
+      <api_name>PUT /v1/business/:id</api_name>
+      <api_name>DELETE /v1/business/:id</api_name>
+    </business>
+
+    <nearby>
+      <api_name>GET /v1/search/nearby</api_name>
+      <example>
+        /api/search/nearby?lat=34.0522&lon=-118.2437&preference=quiet%20cafe%20suitable%20to%20work%20alone%20with%20laptop%20and%20good%20wifi
+      </example>
+    </nearby>
+
+    <business_signup>
+      <api_name>PUT /v1/signup</api_name>
+      <api_name>POST /v1/signin</api_name>
+    </business_signup>
+
+    <submit_review>
+      <description>**Not** implement now</description>
+    </submit_review>
+  </api_endpoints_summary>
+
+  </ui_layout>
+
+  <design_system>
+    <color_palette>
+      - Primary: Violet/Pink accent
+      - Background: White (light mode), Dark gray (#1A1A1A dark mode)
+      - Surface: Light gray (#F5F5F5 light), Darker gray (#2A2A2A dark)
+      - Text: Near black (#1A1A1A light), Off-white (#E5E5E5 dark)
+      - Borders: Light gray (#E5E5E5 light), Dark gray (#404040 dark)
+    </color_palette>
+
+    <typography>
+      - Sans-serif system font stack (Inter, SF Pro, Roboto, system-ui)
+      - Headings: font-semibold
+      - Body: font-normal, leading-relaxed
+      - Code: Monospace (JetBrains Mono, Consolas, Monaco)
+      - Message text: text-base (16px), comfortable line-height
+    </typography>
+
+    <components>
+      <buttons>
+        - Primary: Orange/amber background, white text, rounded
+        - Secondary: Border style with hover fill
+        - Icon buttons: Square with hover background
+        - Disabled state: Reduced opacity, no pointer events
+      </buttons>
+
+      <inputs>
+        - Rounded borders with focus ring
+        - Textarea auto-resize
+        - Placeholder text in gray
+        - Error states in red
+        - Character counter
+      </inputs>
+
+      <cards>
+        - Subtle border or shadow
+        - Rounded corners (8px)
+        - Padding: p-4 to p-6
+        - Hover state: slight shadow increase
+      </cards>
+    </components>
+
+  </design_system>
+
+  <key_interactions>
+    <search_flow>
+      1. User types address or "Near Me" button which will populate the current address.
+      2. User choose radius either 1 km or 5 km.
+      3. User types 'Preference' eg. cafe with good wifi for working with laptop
+      4. User press 'Search' button.
+      5. User obtained paginated results. About 5 business per page.
+      6. At the top, show searched location at Map Marker (Pin).
+      7. Each business display 1 business picture, name, description, review summary.
+      8. On click a business, business details will open.
+    </search_flow>
+
+    <display_business_details>
+      1. Display all business pictures, name, description.
+      2. Display review summary.
+      3. Display 5 most recent reviews and its picture.
+      4. If user is signed in, show "Submit review" button.
+      5. If user is not signed in, find helper text to sign in (sign in button at top right hand
+      corner).
+    </display_business_details>
+
+    <submit_review>
+      1. On click "Submit Review", show review submission layover.
+      2. Fill up review text, pictures (optional) and click submit.
+      3. Do *not* implement the review backend now. Assume submit review is success.
+    </submit_review>
+
+    <conversation_management>
+      1. Click "New Chat" to start fresh conversation
+      2. Conversations auto-save with first message
+      3. Auto-generate title from first exchange
+      4. Click title to rename inline
+      5. Drag conversations into folders
+      6. Right-click for context menu (pin, archive, delete, export)
+      7. Search filters conversations in real-time
+      8. Click conversation to switch context
+    </conversation_management>
+  </key_interactions>
+
+  <implementation_steps>
+
+    <step number="1">
+      <title>Setup Project Foundation and Database</title>
+      <tasks>
+        <task>
+          <subtask>Initialize Express server with PostgreSQL database with postgis and pgvector
+            extension</subtask>
+          <description>GiST indexing on coords</description>
+          <description>Hierarchical Navigable Small World indexing on embedding_vector column</description>
+        </task>
+        <task>Implement authentication endpoints</task>
+        <task>Set up basic CORS and middleware</task>
+        <task>Create health check endpoint</task>
+      </tasks>
+    </step>
+
+    <step
+      number="2">
+      <title>Backend API implementation for Nearby Service</title>
+      <description>This is public and not secure</description>
+      <tasks>
+        <task>Use Voyage AI (via the official 'voyageai' npm package) to generate query embeddings.</task>
+        <task>Configure the spatial index 'idx_business_spatial' on the 'coords' column (using
+          GiST).</task>
+        <task>Configure the vector similarity index 'idx_business_hnsw_vibe' on the
+          'embedding_vector' column.</task>
+        <task>
+          <description>When an HTTP GET search request arrives with user preference text, execute
+            the following runtime execution flow:</description>
+          <subtasks>
+            <subtask>Request a text embedding for the raw preference query from Voyage AI
+              `voyage-4-lite` model to
+              generate 'user_query_embedding'.</subtask>
+            <subtask>
+              Execute the native pgvector nearest-neighbor search query. Note the use of the CDATA
+              wrapper to protect the spatial operators and prevents parsing errors:
+            <![CDATA[
+SELECT 
+    id, 
+    name, 
+    semantic_search_blob,
+    -- The <=> operator calculates (1 - Cosine Similarity) natively
+    (embedding_vector <=> :user_query_embedding) AS distance_score
+FROM 
+    business
+WHERE 
+    -- PostGIS 1km filter happens first
+    ST_DWithin(coords, ST_MakePoint(:lon, :lat)::geography, 1000)
+ORDER BY 
+    distance_score ASC
+LIMIT 5;
+          ]]>
+        </subtask>
+            <subtask>Strict Parameter Order: Ensure longitude and latitude are passed to
+              'ST_MakePoint' in (X, Y) sequence: ST_MakePoint(longitude, latitude).</subtask>
+          </subtasks>
+        </task>
+      </tasks>
+    </step>
+
+    <step number="3">
+      <title>Backend API implementation for Business Service</title>
+      <description>These are secure endpoints</description>
+      <tasks>
+        <api>
+          - GET /v1/business/:id
+          - DELETE /v1/business/:id
+        </api>
+        <subtask>
+          <api>
+            - POST /v1/business
+            - PUT /v1/business/:id
+          </api>
+          <description>
+            - Call Voyage AI `voyage-4-lite` to embed the review summary text → float[]
+            - Store the vector in a `vector(1024)` column `embedding_vector
+            - Store review summary text in blob format
+          </description>
+        </subtask>
+      </tasks>
+    </step>
+
+    <step number="4">
+      <title>Backend API for Signup and Signin</title>
+      <tasks>
+        - Signin validate credentials and provision the JWT token
+        - Username and password is enough
+        - JWT verified in secure backend endpoints
+      </tasks>
+    </step>
+
+    <step number="5">
+      <title>Create UI</title>
+      <tasks>
+        <task>Implement Signup/Signin button at the top, Avatar if signed in</task>
+        <task>Signed-in user: Implement two tabs: Search(Public) and Business</task>
+        <task>Public user: Only Search Tab is visible</task>
+        <task>
+          <description>Implement Search Tab content</description>
+          <subtasks>
+            <subtask>Implement Search sidebar: Search form, Map marker, Preference input, Search
+              button</subtask>
+            <subtask>Implement Search results
+            </tasubtasksk>
+            <subtask>Implement Show Business details page or closable overlay</subtask>
+          </subtasks>
+        </task>
+        <task>
+          <description>Implement Business Tab content</description>
+          <subtasks>
+            <subtask>Implement Add-business button at the top
+            </tasubtasksk>
+            <subtask>
+              - Implement Show All Businesses belong to this signed-in user, each business card with
+              delete and edit button
+              - Paginated 5 businesses per page
+            </subtask>
+            <subtask>Implement Add Business page with the form</subtask>
+            <subtask>Implement Edit Business page with old data prepopulated</subtask>
+          </subtasks>
+        </task>
+        <task>Implement Signup, Signin page</task>
+      </tasks>
+    </step>
+
+  </implementation_steps>
+
+  <success_criteria>
+    <functionality>
+      - Search endpoints work smoothly
+      - For the same geographical location, different `Preference` result in different semantic
+      ranking
+      - Both radius 1 km and 5 km work
+      - Project organization clear and useful
+      - Image upload and display working
+      - All CRUD operations functional
+    </functionality>
+
+    <user_experience>
+      - Smooth animations and transitions
+      - Fast response times and minimal lag
+      - Intuitive navigation and workflows
+      - Clear feedback for all actions
+    </user_experience>
+
+    <technical_quality>
+      - Clean, maintainable code structure
+      - Proper error handling throughout
+      - Secure API key management
+      - Optimized database queries
+      - Efficient streaming implementation
+      - Comprehensive testing coverage
+    </technical_quality>
+
+  </success_criteria>
+</project_specification>

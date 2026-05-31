@@ -1,0 +1,345 @@
+[
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_search.test.js",
+    "api": "GET /v1/search/nearby",
+    "description": "Return businesses within specified radius (1km or 5km)",
+    "method": "GET",
+    "request_payload": {},
+    "response_payload": {
+      "results": [
+        {
+          "id": "string",
+          "name": "string",
+          "address": "string",
+          "latitude": "number",
+          "longitude": "number",
+          "description": "string",
+          "distance": "number"
+        }
+      ]
+    },
+    "status": "FAIL",
+    "error": "expected 200 OK, got 501 Not Implemented",
+    "executed_at": "2026-05-31T23:13:19Z",
+    "_comment": "Core proximity search functionality - returns businesses sorted by distance"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_search.test.js",
+    "api": "GET /v1/search/nearby?lat=1.2897&lon=103.8501&preference=quiet%20cafe%20suitable%20to%20work%20alone%20with%20laptop%20and%20good%20wifi&radius=1&count=5",
+    "description": "Return cafes within 1km ranked by semantic similarity to preference",
+    "method": "GET",
+    "request_payload": {},
+    "response_payload": {
+      "results": [
+        {
+          "id": "string",
+          "name": "string",
+          "similarity_score": "number",
+          "distance": "number"
+        }
+      ]
+    },
+    "status": "FAIL",
+    "error": "expected 200 OK, got 501 Not Implemented",
+    "executed_at": "2026-05-31T23:13:19Z",
+    "_comment": "Semantic search with Voyage AI embeddings - different preferences yield different rankings"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_auth.test.js",
+    "api": "POST /v1/signup",
+    "description": "Create new user account",
+    "method": "POST",
+    "request_payload": {
+      "username": "string",
+      "password": "string"
+    },
+    "response_payload": {
+      "userId": "string",
+      "username": "string",
+      "token": "string"
+    },
+    "status": "PASS",
+    "error": "expected 201 Created, got 501 Not Implemented",
+    "executed_at": "2026-05-31T23:13:14Z",
+    "_comment": "User registration endpoint"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_auth.test.js",
+    "api": "POST /v1/signin",
+    "description": "Authenticate user and return JWT token",
+    "method": "POST",
+    "request_payload": {
+      "username": "string",
+      "password": "string"
+    },
+    "response_payload": {
+      "userId": "string",
+      "username": "string",
+      "token": "string"
+    },
+    "status": "PASS",
+    "error": "expected 200 OK, got 501 Not Implemented",
+    "executed_at": "2026-05-31T23:13:14Z",
+    "_comment": "User authentication endpoint - returns JWT token"
+  },
+  {
+    "priority": "P2",
+    "category": "backend",
+    "test_file_name": "backend_business_crud.test.js",
+    "api": "GET /v1/business/:id",
+    "description": "Retrieve business details by ID",
+    "method": "GET",
+    "request_payload": {},
+    "response_payload": {
+      "id": "string",
+      "name": "string",
+      "address": "string",
+      "postal_code": "string",
+      "description": "string",
+      "latitude": "number",
+      "longitude": "number",
+      "semantic_search_blob": "string"
+    },
+    "status": "FAIL",
+    "error": "expected 200 OK, got 501 Not Implemented",
+    "executed_at": "2026-05-31T23:13:24Z",
+    "_comment": "Public endpoint to view business details"
+  },
+  {
+    "priority": "P2",
+    "category": "backend",
+    "test_file_name": "backend_business_crud.test.js",
+    "api": "POST /v1/business",
+    "description": "Create new business (authenticated, generates embedding)",
+    "method": "POST",
+    "request_payload": {
+      "name": "string",
+      "address": "string",
+      "postal_code": "string",
+      "description": "string",
+      "latitude": "number",
+      "longitude": "number",
+      "semantic_search_blob": "string"
+    },
+    "response_payload": {
+      "id": "string",
+      "name": "string",
+      "embedding_vector": "string"
+    },
+    "status": "FAIL",
+    "error": "expected 201 Created, got 501 Not Implemented",
+    "executed_at": "2026-05-31T23:13:24Z",
+    "_comment": "Protected endpoint - requires JWT token, calls Voyage AI to generate embedding"
+  },
+  {
+    "priority": "P2",
+    "category": "backend",
+    "test_file_name": "backend_business_crud.test.js",
+    "api": "PUT /v1/business/:id",
+    "description": "Update business (owner only, regenerates embedding if semantic_search_blob changed)",
+    "method": "PUT",
+    "request_payload": {
+      "description": "string",
+      "semantic_search_blob": "string"
+    },
+    "response_payload": {
+      "id": "string",
+      "description": "string",
+      "embedding_vector": "string"
+    },
+    "status": "FAIL",
+    "error": "expected 200 OK, got 501 Not Implemented",
+    "executed_at": "2026-05-31T23:13:24Z",
+    "_comment": "Protected endpoint - only business owner can update"
+  },
+  {
+    "priority": "P2",
+    "category": "backend",
+    "test_file_name": "backend_business_crud.test.js",
+    "api": "DELETE /v1/business/:id",
+    "description": "Delete business (owner only)",
+    "method": "DELETE",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "expected 204 No Content, got 501 Not Implemented",
+    "executed_at": "2026-05-31T23:13:24Z",
+    "_comment": "Protected endpoint - only business owner can delete"
+  },
+  {
+    "priority": "P1",
+    "category": "frontend",
+    "test_file_name": "frontend_search.test.js",
+    "api": "N/A",
+    "description": "E2E: Load search page and verify UI elements (location input, preference input, radius selection, search button)",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "Puppeteer browser connection failed - ECONNRESET. Frontend server not running or not responding on port 5173",
+    "executed_at": "2026-05-31T23:13:52Z",
+    "_comment": "Puppeteer test for search interface"
+  },
+  {
+    "priority": "P1",
+    "category": "frontend",
+    "test_file_name": "frontend_search.test.js",
+    "api": "N/A",
+    "description": "E2E: Perform search and display results (5 per page) with map markers",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "Puppeteer browser connection failed - ECONNRESET. Frontend server not running or not responding on port 5173",
+    "executed_at": "2026-05-31T23:13:52Z",
+    "_comment": "Complete search flow test"
+  },
+  {
+    "priority": "P1",
+    "category": "frontend",
+    "test_file_name": "frontend_search.test.js",
+    "api": "N/A",
+    "description": "E2E: Click business result to open details modal/layover",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "Puppeteer browser connection failed - ECONNRESET. Frontend server not running or not responding on port 5173",
+    "executed_at": "2026-05-31T23:13:52Z",
+    "_comment": "Business details view test"
+  },
+  {
+    "priority": "P1",
+    "category": "frontend",
+    "test_file_name": "frontend_search.test.js",
+    "api": "N/A",
+    "description": "E2E: Different preferences yield different search result rankings",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "Puppeteer browser connection failed - ECONNRESET. Frontend server not running or not responding on port 5173",
+    "executed_at": "2026-05-31T23:13:52Z",
+    "_comment": "Verify semantic search works in UI"
+  },
+  {
+    "priority": "P1",
+    "category": "frontend",
+    "test_file_name": "frontend_search.test.js",
+    "api": "N/A",
+    "description": "E2E: Search bar is sticky at top of page",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "Puppeteer browser connection failed - ECONNRESET. Frontend server not running or not responding on port 5173",
+    "executed_at": "2026-05-31T23:13:52Z",
+    "_comment": "UI layout requirement"
+  },
+  {
+    "priority": "P2",
+    "category": "frontend",
+    "test_file_name": "frontend_business_management.test.js",
+    "api": "N/A",
+    "description": "E2E: Unauthenticated users see Sign In button",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "Puppeteer browser connection failed - ECONNRESET. Frontend server not running or not responding on port 5173",
+    "executed_at": "2026-05-31T23:14:01Z",
+    "_comment": "Authentication UI test"
+  },
+  {
+    "priority": "P2",
+    "category": "frontend",
+    "test_file_name": "frontend_business_management.test.js",
+    "api": "N/A",
+    "description": "E2E: User can sign in and see Business tab",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "Puppeteer browser connection failed - ECONNRESET. Frontend server not running or not responding on port 5173",
+    "executed_at": "2026-05-31T23:14:01Z",
+    "_comment": "Sign in flow and tab navigation"
+  },
+  {
+    "priority": "P2",
+    "category": "frontend",
+    "test_file_name": "frontend_business_management.test.js",
+    "api": "N/A",
+    "description": "E2E: Business tab shows owned businesses with edit/delete buttons",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "Puppeteer browser connection failed - ECONNRESET. Frontend server not running or not responding on port 5173",
+    "executed_at": "2026-05-31T23:14:01Z",
+    "_comment": "Business management UI"
+  },
+  {
+    "priority": "P2",
+    "category": "frontend",
+    "test_file_name": "frontend_business_management.test.js",
+    "api": "N/A",
+    "description": "E2E: Add Business form with all required fields",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "Puppeteer browser connection failed - ECONNRESET. Frontend server not running or not responding on port 5173",
+    "executed_at": "2026-05-31T23:14:01Z",
+    "_comment": "Create business form"
+  },
+  {
+    "priority": "P2",
+    "category": "frontend",
+    "test_file_name": "frontend_business_management.test.js",
+    "api": "N/A",
+    "description": "E2E: Submit Add Business form and see new business in list",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "Puppeteer browser connection failed - ECONNRESET. Frontend server not running or not responding on port 5173",
+    "executed_at": "2026-05-31T23:14:01Z",
+    "_comment": "Complete create business flow"
+  },
+  {
+    "priority": "P3",
+    "category": "frontend",
+    "test_file_name": "frontend_business_management.test.js",
+    "api": "N/A",
+    "description": "E2E: Show in Map Marker button converts postal code to lat/lon",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "Puppeteer browser connection failed - ECONNRESET. Frontend server not running or not responding on port 5173",
+    "executed_at": "2026-05-31T23:14:01Z",
+    "_comment": "Postal code geocoding feature"
+  },
+  {
+    "priority": "P3",
+    "category": "frontend",
+    "test_file_name": "frontend_business_management.test.js",
+    "api": "N/A",
+    "description": "E2E: Delete business shows confirmation dialog",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "Puppeteer browser connection failed - ECONNRESET. Frontend server not running or not responding on port 5173",
+    "executed_at": "2026-05-31T23:14:01Z",
+    "_comment": "Delete confirmation UX"
+  }
+]
