@@ -12,6 +12,19 @@ function normalizeCaseInsensitiveSelector(selector) {
   return selector.replace(/\s+i\]/g, ']');
 }
 
+// Helper function to handle :has-text() selectors
+function parseHasTextSelector(selector) {
+  // Match patterns like: button:has-text("text"), a:has-text("text"), [role="tab"]:has-text("text")
+  const hasTextPattern = /([a-zA-Z]+|\[[^\]]+\]):has-text\("([^"]+)"\)/;
+  const match = selector.match(hasTextPattern);
+
+  if (match) {
+    const [, element, text] = match;
+    return { element, text };
+  }
+  return null;
+}
+
 // Patch page.$ to handle :has-text() selectors and case-insensitive selectors
 beforeAll(() => {
   const originalLaunch = puppeteer.launch;
@@ -28,14 +41,39 @@ beforeAll(() => {
 
       // Override page.$ to handle special selectors
       page.$ = async function(selector) {
-        // Check if selector contains :has-text()
-        const hasTextMatch = selector.match(/button:has-text\("([^"]+)"\)/);
+        // Handle comma-separated selectors (OR logic)
+        if (selector.includes(',')) {
+          const selectors = selector.split(',').map(s => s.trim());
+          for (const sel of selectors) {
+            const element = await page.$(sel);
+            if (element) return element;
+          }
+          return null;
+        }
 
-        if (hasTextMatch) {
-          const text = hasTextMatch[1];
-          // Use XPath to find button with text
-          const elements = await page.$x(`//button[contains(text(), "${text}")]`);
-          return elements[0] || null;
+        // Check if selector contains :has-text()
+        const hasTextInfo = parseHasTextSelector(selector);
+        if (hasTextInfo) {
+          const { element, text } = hasTextInfo;
+
+          // Build XPath based on element type
+          let xpath;
+          if (element.startsWith('[')) {
+            // Attribute selector like [role="tab"]
+            const attrMatch = element.match(/\[([^=]+)="([^"]+)"\]/);
+            if (attrMatch) {
+              const [, attrName, attrValue] = attrMatch;
+              xpath = `//*[@${attrName}="${attrValue}" and contains(text(), "${text}")]`;
+            }
+          } else {
+            // Simple element like button, a, etc.
+            xpath = `//${element}[contains(text(), "${text}")]`;
+          }
+
+          if (xpath) {
+            const elements = await page.$x(xpath);
+            return elements[0] || null;
+          }
         }
 
         // Normalize case-insensitive selectors
