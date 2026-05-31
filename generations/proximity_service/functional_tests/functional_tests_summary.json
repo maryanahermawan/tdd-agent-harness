@@ -2,55 +2,6 @@
   {
     "priority": "P1",
     "category": "backend",
-    "test_file_name": "backend_search.test.js",
-    "api": "GET /v1/search/nearby",
-    "description": "Return businesses within specified radius (1km or 5km)",
-    "method": "GET",
-    "request_payload": {},
-    "response_payload": {
-      "results": [
-        {
-          "id": "string",
-          "name": "string",
-          "address": "string",
-          "latitude": "number",
-          "longitude": "number",
-          "description": "string",
-          "distance": "number"
-        }
-      ]
-    },
-    "status": "PASS",
-    "error": "",
-    "executed_at": "2026-05-31T17:42:21Z",
-    "_comment": "Core proximity search functionality - returns businesses sorted by distance"
-  },
-  {
-    "priority": "P1",
-    "category": "backend",
-    "test_file_name": "backend_search.test.js",
-    "api": "GET /v1/search/nearby?lat=1.2897&lon=103.8501&preference=quiet%20cafe%20suitable%20to%20work%20alone%20with%20laptop%20and%20good%20wifi&radius=1&count=5",
-    "description": "Return cafes within 1km ranked by semantic similarity to preference",
-    "method": "GET",
-    "request_payload": {},
-    "response_payload": {
-      "results": [
-        {
-          "id": "string",
-          "name": "string",
-          "similarity_score": "number",
-          "distance": "number"
-        }
-      ]
-    },
-    "status": "PASS",
-    "error": "",
-    "executed_at": "2026-05-31T17:42:21Z",
-    "_comment": "Semantic search with Voyage AI embeddings - different preferences yield different rankings"
-  },
-  {
-    "priority": "P1",
-    "category": "backend",
     "test_file_name": "backend_auth.test.js",
     "api": "POST /v1/signup",
     "description": "Create new user account",
@@ -64,9 +15,9 @@
       "username": "string",
       "token": "string"
     },
-    "status": "FAIL",
-    "error": "expected 201 \"Created\", got 409 \"Conflict\" - User already exists from previous test run",
-    "executed_at": "2026-05-31T17:42:21Z",
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-06-01T01:50:22Z",
     "_comment": "User registration endpoint"
   },
   {
@@ -87,8 +38,240 @@
     },
     "status": "PASS",
     "error": "",
-    "executed_at": "2026-05-31T17:42:21Z",
+    "executed_at": "2026-05-31T17:47:48Z",
     "_comment": "User authentication endpoint - returns JWT token"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_auth.test.js",
+    "api": "POST /v1/signup - reject duplicate username",
+    "description": "Return 409 when username already exists",
+    "method": "POST",
+    "request_payload": {
+      "username": "string",
+      "password": "string"
+    },
+    "response_payload": {
+      "error": "string"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Duplicate username validation"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_auth.test.js",
+    "api": "POST /v1/signup - validation errors",
+    "description": "Return 400 for missing username or password",
+    "method": "POST",
+    "request_payload": {},
+    "response_payload": {
+      "error": "string"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Input validation"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_auth.test.js",
+    "api": "POST /v1/signin - invalid credentials",
+    "description": "Return 401 for wrong password",
+    "method": "POST",
+    "request_payload": {
+      "username": "string",
+      "password": "string"
+    },
+    "response_payload": {
+      "error": "string"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Authentication failure handling"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_auth.test.js",
+    "api": "POST /v1/signin - nonexistent user",
+    "description": "Return 401 for nonexistent username",
+    "method": "POST",
+    "request_payload": {
+      "username": "string",
+      "password": "string"
+    },
+    "response_payload": {
+      "error": "string"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "User not found handling"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_auth.test.js",
+    "api": "JWT token validation",
+    "description": "Verify JWT token contains userId and username",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "JWT payload validation"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_search.test.js",
+    "api": "GET /v1/search/nearby",
+    "description": "Return businesses within specified radius (1km or 5km)",
+    "method": "GET",
+    "request_payload": {},
+    "response_payload": {
+      "results": [
+        {
+          "id": "string",
+          "name": "string",
+          "address": "string",
+          "latitude": "number",
+          "longitude": "number",
+          "description": "string",
+          "distance": "number"
+        }
+      ]
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Core proximity search functionality - returns businesses sorted by distance"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_search.test.js",
+    "api": "GET /v1/search/nearby - 1km radius",
+    "description": "Return only businesses within 1km",
+    "method": "GET",
+    "request_payload": {},
+    "response_payload": {
+      "results": "array"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Distance filtering - 1km radius"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_search.test.js",
+    "api": "GET /v1/search/nearby - 5km radius",
+    "description": "Return only businesses within 5km",
+    "method": "GET",
+    "request_payload": {},
+    "response_payload": {
+      "results": "array"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Distance filtering - 5km radius"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_search.test.js",
+    "api": "GET /v1/search/nearby - sorted by distance",
+    "description": "Return businesses sorted by distance ascending",
+    "method": "GET",
+    "request_payload": {},
+    "response_payload": {
+      "results": "array"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Results sorted by proximity"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_search.test.js",
+    "api": "GET /v1/search/nearby - pagination (count parameter)",
+    "description": "Return limited number of results based on count parameter",
+    "method": "GET",
+    "request_payload": {},
+    "response_payload": {
+      "results": "array"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Pagination support"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_search.test.js",
+    "api": "GET /v1/search/nearby?preference=quiet cafe",
+    "description": "Return cafes ranked by semantic similarity to preference",
+    "method": "GET",
+    "request_payload": {},
+    "response_payload": {
+      "results": [
+        {
+          "id": "string",
+          "name": "string",
+          "similarity_score": "number",
+          "distance": "number"
+        }
+      ]
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Semantic search with Voyage AI embeddings"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_search.test.js",
+    "api": "GET /v1/search/nearby - semantic ranking variation",
+    "description": "Different preferences yield different rankings",
+    "method": "GET",
+    "request_payload": {},
+    "response_payload": {
+      "results": "array"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Verify semantic search produces different results for different preferences"
+  },
+  {
+    "priority": "P1",
+    "category": "backend",
+    "test_file_name": "backend_search.test.js",
+    "api": "GET /v1/search/nearby - validation errors",
+    "description": "Return 400 for missing or invalid parameters",
+    "method": "GET",
+    "request_payload": {},
+    "response_payload": {
+      "error": "string"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Input validation for search parameters"
   },
   {
     "priority": "P2",
@@ -110,8 +293,24 @@
     },
     "status": "PASS",
     "error": "",
-    "executed_at": "2026-05-31T17:42:21Z",
+    "executed_at": "2026-05-31T17:47:48Z",
     "_comment": "Public endpoint to view business details"
+  },
+  {
+    "priority": "P2",
+    "category": "backend",
+    "test_file_name": "backend_business_crud.test.js",
+    "api": "GET /v1/business/:id - not found",
+    "description": "Return 404 for nonexistent business ID",
+    "method": "GET",
+    "request_payload": {},
+    "response_payload": {
+      "error": "string"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Business not found handling"
   },
   {
     "priority": "P2",
@@ -136,8 +335,42 @@
     },
     "status": "PASS",
     "error": "",
-    "executed_at": "2026-05-31T17:42:21Z",
+    "executed_at": "2026-05-31T17:47:48Z",
     "_comment": "Protected endpoint - requires JWT token, calls Voyage AI to generate embedding"
+  },
+  {
+    "priority": "P2",
+    "category": "backend",
+    "test_file_name": "backend_business_crud.test.js",
+    "api": "POST /v1/business - unauthenticated",
+    "description": "Return 401 when creating business without token",
+    "method": "POST",
+    "request_payload": {
+      "name": "string"
+    },
+    "response_payload": {
+      "error": "string"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Authentication required"
+  },
+  {
+    "priority": "P2",
+    "category": "backend",
+    "test_file_name": "backend_business_crud.test.js",
+    "api": "POST /v1/business - validation errors",
+    "description": "Return 400 for missing required fields",
+    "method": "POST",
+    "request_payload": {},
+    "response_payload": {
+      "error": "string"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Input validation"
   },
   {
     "priority": "P2",
@@ -157,8 +390,44 @@
     },
     "status": "PASS",
     "error": "",
-    "executed_at": "2026-05-31T17:42:21Z",
+    "executed_at": "2026-05-31T17:47:48Z",
     "_comment": "Protected endpoint - only business owner can update"
+  },
+  {
+    "priority": "P2",
+    "category": "backend",
+    "test_file_name": "backend_business_crud.test.js",
+    "api": "PUT /v1/business/:id - unauthenticated",
+    "description": "Return 401 when updating business without token",
+    "method": "PUT",
+    "request_payload": {
+      "description": "string"
+    },
+    "response_payload": {
+      "error": "string"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Authentication required"
+  },
+  {
+    "priority": "P2",
+    "category": "backend",
+    "test_file_name": "backend_business_crud.test.js",
+    "api": "PUT /v1/business/:id - unauthorized user",
+    "description": "Return 403 when non-owner tries to update business",
+    "method": "PUT",
+    "request_payload": {
+      "description": "string"
+    },
+    "response_payload": {
+      "error": "string"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Owner authorization check"
   },
   {
     "priority": "P2",
@@ -171,8 +440,40 @@
     "response_payload": {},
     "status": "PASS",
     "error": "",
-    "executed_at": "2026-05-31T17:42:21Z",
+    "executed_at": "2026-05-31T17:47:48Z",
     "_comment": "Protected endpoint - only business owner can delete"
+  },
+  {
+    "priority": "P2",
+    "category": "backend",
+    "test_file_name": "backend_business_crud.test.js",
+    "api": "DELETE /v1/business/:id - unauthenticated",
+    "description": "Return 401 when deleting business without token",
+    "method": "DELETE",
+    "request_payload": {},
+    "response_payload": {
+      "error": "string"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Authentication required"
+  },
+  {
+    "priority": "P2",
+    "category": "backend",
+    "test_file_name": "backend_business_crud.test.js",
+    "api": "DELETE /v1/business/:id - unauthorized user",
+    "description": "Return 403 when non-owner tries to delete business",
+    "method": "DELETE",
+    "request_payload": {},
+    "response_payload": {
+      "error": "string"
+    },
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Owner authorization check"
   },
   {
     "priority": "P1",
@@ -185,8 +486,50 @@
     "response_payload": {},
     "status": "PASS",
     "error": "",
-    "executed_at": "2026-05-31T17:42:21Z",
+    "executed_at": "2026-05-31T17:47:48Z",
     "_comment": "Puppeteer test for search interface"
+  },
+  {
+    "priority": "P1",
+    "category": "frontend",
+    "test_file_name": "frontend_search.test.js",
+    "api": "N/A",
+    "description": "E2E: Location input accepts text and shows autocomplete suggestions",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Location autocomplete functionality"
+  },
+  {
+    "priority": "P1",
+    "category": "frontend",
+    "test_file_name": "frontend_search.test.js",
+    "api": "N/A",
+    "description": "E2E: Preference input accepts text",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Preference text input"
+  },
+  {
+    "priority": "P1",
+    "category": "frontend",
+    "test_file_name": "frontend_search.test.js",
+    "api": "N/A",
+    "description": "E2E: Radius selection works (1km or 5km)",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Radius selection UI"
   },
   {
     "priority": "P1",
@@ -199,7 +542,7 @@
     "response_payload": {},
     "status": "PASS",
     "error": "",
-    "executed_at": "2026-05-31T17:42:21Z",
+    "executed_at": "2026-05-31T17:47:48Z",
     "_comment": "Complete search flow test"
   },
   {
@@ -213,7 +556,7 @@
     "response_payload": {},
     "status": "PASS",
     "error": "",
-    "executed_at": "2026-05-31T17:42:21Z",
+    "executed_at": "2026-05-31T17:47:48Z",
     "_comment": "Business details view test"
   },
   {
@@ -227,7 +570,7 @@
     "response_payload": {},
     "status": "PASS",
     "error": "",
-    "executed_at": "2026-05-31T17:42:21Z",
+    "executed_at": "2026-05-31T17:47:48Z",
     "_comment": "Verify semantic search works in UI"
   },
   {
@@ -241,8 +584,22 @@
     "response_payload": {},
     "status": "PASS",
     "error": "",
-    "executed_at": "2026-05-31T17:42:21Z",
+    "executed_at": "2026-05-31T17:47:48Z",
     "_comment": "UI layout requirement"
+  },
+  {
+    "priority": "P1",
+    "category": "frontend",
+    "test_file_name": "frontend_search.test.js",
+    "api": "N/A",
+    "description": "E2E: Map displays with correct markers for search results",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "PASS",
+    "error": "",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Map integration test"
   },
   {
     "priority": "P2",
@@ -255,7 +612,7 @@
     "response_payload": {},
     "status": "PASS",
     "error": "",
-    "executed_at": "2026-05-31T17:42:21Z",
+    "executed_at": "2026-05-31T17:47:48Z",
     "_comment": "Authentication UI test"
   },
   {
@@ -263,14 +620,28 @@
     "category": "frontend",
     "test_file_name": "frontend_business_management.test.js",
     "api": "N/A",
-    "description": "E2E: User can sign in and see Business tab",
+    "description": "E2E: User can navigate to signin page and authenticate",
     "method": "N/A",
     "request_payload": {},
     "response_payload": {},
     "status": "FAIL",
     "error": "Navigation timeout of 5000 ms exceeded - Sign in form submission does not redirect",
-    "executed_at": "2026-05-31T17:42:21Z",
-    "_comment": "Sign in flow and tab navigation"
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Sign in flow - frontend not redirecting after authentication"
+  },
+  {
+    "priority": "P2",
+    "category": "frontend",
+    "test_file_name": "frontend_business_management.test.js",
+    "api": "N/A",
+    "description": "E2E: Authenticated users see Business tab",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "Navigation timeout of 5000 ms exceeded - Cannot authenticate to see Business tab",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Business tab visibility - blocked by auth issue"
   },
   {
     "priority": "P2",
@@ -283,22 +654,22 @@
     "response_payload": {},
     "status": "FAIL",
     "error": "expected null to be truthy - Business tab or Add Business button not found",
-    "executed_at": "2026-05-31T17:42:21Z",
-    "_comment": "Business management UI"
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Business management UI - not implemented"
   },
   {
     "priority": "P2",
     "category": "frontend",
     "test_file_name": "frontend_business_management.test.js",
     "api": "N/A",
-    "description": "E2E: Add Business form with all required fields",
+    "description": "E2E: Add Business form opens with all required fields",
     "method": "N/A",
     "request_payload": {},
     "response_payload": {},
     "status": "FAIL",
     "error": "Cannot read properties of null (reading 'click') - Add Business button not found",
-    "executed_at": "2026-05-31T17:42:21Z",
-    "_comment": "Create business form"
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Create business form - not implemented"
   },
   {
     "priority": "P2",
@@ -311,8 +682,50 @@
     "response_payload": {},
     "status": "FAIL",
     "error": "No element found for selector: input[name=\"name\"] - Add Business form not displayed",
-    "executed_at": "2026-05-31T17:42:21Z",
-    "_comment": "Complete create business flow"
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Complete create business flow - not implemented"
+  },
+  {
+    "priority": "P2",
+    "category": "frontend",
+    "test_file_name": "frontend_business_management.test.js",
+    "api": "N/A",
+    "description": "E2E: Owned businesses show edit button",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "expected null to be truthy - Edit button not found on business items",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Edit functionality - not implemented"
+  },
+  {
+    "priority": "P2",
+    "category": "frontend",
+    "test_file_name": "frontend_business_management.test.js",
+    "api": "N/A",
+    "description": "E2E: Delete business shows confirmation dialog",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "expected null to be truthy - Delete button not found on business items",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Delete confirmation UX - not implemented"
+  },
+  {
+    "priority": "P3",
+    "category": "frontend",
+    "test_file_name": "frontend_business_management.test.js",
+    "api": "N/A",
+    "description": "E2E: Show in Map Marker button on Add/Edit business form",
+    "method": "N/A",
+    "request_payload": {},
+    "response_payload": {},
+    "status": "FAIL",
+    "error": "expected null to be truthy - Show in Map button not found",
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Map preview feature - not implemented"
   },
   {
     "priority": "P3",
@@ -325,21 +738,7 @@
     "response_payload": {},
     "status": "FAIL",
     "error": "No element found for selector: input[name=\"postal_code\"] - Business form not accessible",
-    "executed_at": "2026-05-31T17:42:21Z",
-    "_comment": "Postal code geocoding feature"
-  },
-  {
-    "priority": "P3",
-    "category": "frontend",
-    "test_file_name": "frontend_business_management.test.js",
-    "api": "N/A",
-    "description": "E2E: Delete business shows confirmation dialog",
-    "method": "N/A",
-    "request_payload": {},
-    "response_payload": {},
-    "status": "FAIL",
-    "error": "expected null to be truthy - Delete button not found on business items",
-    "executed_at": "2026-05-31T17:42:21Z",
-    "_comment": "Delete confirmation UX"
+    "executed_at": "2026-05-31T17:47:48Z",
+    "_comment": "Postal code geocoding feature - not implemented"
   }
 ]

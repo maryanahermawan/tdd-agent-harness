@@ -128,8 +128,8 @@ function App() {
         localStorage.setItem('authToken', data.token);
         localStorage.setItem('username', data.username);
         localStorage.setItem('userId', data.userId);
-        // Reload page to trigger navigation event expected by tests
-        window.location.reload();
+        // Use assign to trigger proper navigation event
+        window.location.assign('/');
       } else {
         alert('Sign in failed. Please check your credentials.');
       }
