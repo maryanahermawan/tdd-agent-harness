@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/maryanahermawan/tdd-agent-harness/generations/proximity_service/logs/.ee4b41b700046c178f60bbc4a3cf047e583ace3e-audit.json",
+    "files": [
+        {
+            "date": 1780216172482,
+            "name": "/Users/maryanahermawan/tdd-agent-harness/generations/proximity_service/logs/mcp-puppeteer-2026-05-31.log",
+            "hash": "69b73c77c2b257f4a91b6cfdc39ddba17c8d103d81b6ec6f31dc906407e6862e"
+        },
+        {
+            "date": 1780244623336,
+            "name": "/Users/maryanahermawan/tdd-agent-harness/generations/proximity_service/logs/mcp-puppeteer-2026-06-01.log",
+            "hash": "d4daa55f1ec1c3b79a91423f68be86001921d53fe751005bed5913b070255e7a"
+        }
+    ],
+    "hashType": "sha256"
+}

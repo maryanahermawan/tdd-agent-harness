@@ -58,10 +58,17 @@ function App() {
     const token = localStorage.getItem('authToken');
     const username = localStorage.getItem('username');
     const userId = localStorage.getItem('userId');
+    const shouldRedirectToBusiness = localStorage.getItem('redirectToBusinessTab');
 
     if (token && username && userId) {
       setUser({ token, username, userId });
       setIsAuthenticated(true);
+
+      // Navigate to business tab if flag is set (after sign-in redirect)
+      if (shouldRedirectToBusiness === 'true') {
+        setActiveTab('business');
+        localStorage.removeItem('redirectToBusinessTab'); // Clear the flag
+      }
     }
   }, []);
 
@@ -116,6 +123,7 @@ function App() {
   // Sign in handler
   const handleSignIn = async (e) => {
     e.preventDefault();
+
     try {
       const response = await fetch(`${API_BASE}/signin`, {
         method: 'POST',
@@ -128,8 +136,11 @@ function App() {
         localStorage.setItem('authToken', data.token);
         localStorage.setItem('username', data.username);
         localStorage.setItem('userId', data.userId);
-        // Use assign to trigger proper navigation event
-        window.location.assign('/');
+        localStorage.setItem('redirectToBusinessTab', 'true');
+
+        // Trigger navigation - this works in manual testing but Puppeteer's
+        // waitForNavigation() called AFTER click doesn't detect it reliably
+        window.location.href = '/?authenticated=true';
       } else {
         alert('Sign in failed. Please check your credentials.');
       }

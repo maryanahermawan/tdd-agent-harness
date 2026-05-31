@@ -1,0 +1,22 @@
+{
+  "name": "proximity-service-functional-tests",
+  "version": "1.0.0",
+  "description": "Functional tests for Proximity Service",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:backend": "vitest run backend",
+    "test:frontend": "vitest run frontend",
+    "test:p1": "vitest run --grep 'P1'",
+    "test:p2": "vitest run --grep 'P2'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "puppeteer": "^25.1.0",
+    "supertest": "^6.3.3",
+    "vitest": "^1.0.4"
+  }
+}

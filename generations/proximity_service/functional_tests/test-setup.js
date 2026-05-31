@@ -39,6 +39,11 @@ beforeAll(() => {
       const original$$ = page.$$.bind(page);
       const originalWaitForSelector = page.waitForSelector.bind(page);
 
+      // Add waitForTimeout replacement since it was removed in Puppeteer v23
+      page.waitForTimeout = async function(timeout) {
+        await new Promise(resolve => setTimeout(resolve, timeout));
+      };
+
       // Override page.$ to handle special selectors
       page.$ = async function(selector) {
         // Handle comma-separated selectors (OR logic)
@@ -56,23 +61,38 @@ beforeAll(() => {
         if (hasTextInfo) {
           const { element, text } = hasTextInfo;
 
-          // Build XPath based on element type
-          let xpath;
-          if (element.startsWith('[')) {
-            // Attribute selector like [role="tab"]
-            const attrMatch = element.match(/\[([^=]+)="([^"]+)"\]/);
-            if (attrMatch) {
-              const [, attrName, attrValue] = attrMatch;
-              xpath = `//*[@${attrName}="${attrValue}" and contains(text(), "${text}")]`;
-            }
-          } else {
-            // Simple element like button, a, etc.
-            xpath = `//${element}[contains(text(), "${text}")]`;
-          }
+          // Use evaluateHandle to find element by text content
+          try {
+            const elementHandle = await page.evaluateHandle((tagName, searchText, selector) => {
+              let elements;
 
-          if (xpath) {
-            const elements = await page.$x(xpath);
-            return elements[0] || null;
+              if (selector.startsWith('[')) {
+                // Attribute selector like [role="tab"]
+                const attrMatch = selector.match(/\[([^=]+)="([^"]+)"\]/);
+                if (attrMatch) {
+                  const [, attrName, attrValue] = attrMatch;
+                  elements = Array.from(document.querySelectorAll(`*[${attrName}="${attrValue}"]`));
+                } else {
+                  return null;
+                }
+              } else {
+                // Simple element like button, a, etc.
+                elements = Array.from(document.querySelectorAll(tagName));
+              }
+
+              // Find element containing the text
+              return elements.find(el => el.textContent.includes(searchText)) || null;
+            }, element, text, element);
+
+            // Check if we found an element
+            const foundElement = await page.evaluate(el => el !== null, elementHandle);
+            if (!foundElement) {
+              return null;
+            }
+
+            return elementHandle.asElement();
+          } catch (error) {
+            return null;
           }
         }
 

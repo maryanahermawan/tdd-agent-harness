@@ -1,4 +1,36 @@
-[
+{
+  "lastRun": "2026-05-31T18:44:34Z",
+  "totalTests": 45,
+  "passed": 36,
+  "failed": 9,
+  "testSummary": [
+    {
+      "file": "backend_auth.test.js",
+      "status": "PASS",
+      "details": "All 7 authentication tests passed (253ms) - user registration, login, token validation, password hashing"
+    },
+    {
+      "file": "backend_business_crud.test.js",
+      "status": "PASS",
+      "details": "All 11 CRUD tests passed (239ms) - create, read, update, delete operations for businesses"
+    },
+    {
+      "file": "backend_search.test.js",
+      "status": "PASS",
+      "details": "All 8 search tests passed (71ms) - proximity search, category filters, radius queries"
+    },
+    {
+      "file": "frontend_business_management.test.js",
+      "status": "FAIL",
+      "details": "9 of 10 tests failed (23.3s) - Navigation timeout issues after authentication, UI elements not found (Add Business button, form inputs). Only 'should show businesses section in UI' test passed."
+    },
+    {
+      "file": "frontend_search.test.js",
+      "status": "PASS",
+      "details": "All 9 tests passed (12.9s) - UI rendering, search functionality, map integration, result filtering"
+    }
+  ],
+  "detailedResults": [
   {
     "priority": "P1",
     "category": "backend",
