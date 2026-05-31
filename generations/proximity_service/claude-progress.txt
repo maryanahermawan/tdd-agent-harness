@@ -1,0 +1,234 @@
+=== PROXIMITY SERVICE - TDD INITIALIZATION COMPLETE ===
+Date: 2026-05-31
+Agent: Initializer (Session 1)
+
+SUMMARY OF ACCOMPLISHMENTS:
+
+1. DATABASE SETUP AND SEEDING
+   - Created PostgreSQL database schema with users and businesses tables
+   - Generated migration.sql with 3 sample users and 27 businesses (real Singapore locations)
+   - Successfully applied migration to local PostgreSQL (localhost:55000)
+   - Created comprehensive database_setup_summary.md documentation
+   - All data includes realistic Singapore locations across CBD, Marina Bay, Orchard Road, etc.
+
+2. FUNCTIONAL TESTS CREATED (20 tests total)
+
+   Backend Tests (10 tests):
+   - backend_auth.test.js (7 tests, P1) - Signup, signin, JWT validation
+   - backend_search.test.js (8 tests, P1) - Proximity search, semantic ranking
+   - backend_business_crud.test.js (10 tests, P2) - CRUD operations for businesses
+
+   Frontend E2E Tests (10 tests):
+   - frontend_search.test.js (9 tests, P1) - Search UI, map display, results
+   - frontend_business_management.test.js (10 tests, P2) - Business owner dashboard
+
+   All tests are properly documented in functional_tests_summary.json with:
+   - Priority levels (P1, P2, P3)
+   - API endpoints
+   - Request/response payloads
+   - Current status: FAIL (as expected in TDD)
+
+3. BACKEND SERVER FOUNDATION
+   - Created Express server with proper structure
+   - Database connection pool configured
+   - Route stubs created:
+     * /v1/signup, /v1/signin (auth.js)
+     * /v1/business/:id (GET, POST, PUT, DELETE) (business.js)
+     * /v1/search/nearby (search.js)
+   - Health check endpoint working: http://localhost:3000/health
+   - Middleware configured: CORS, JSON parsing, error handling
+   - Environment variables setup (.env and .env.example)
+
+   ALL ENDPOINTS RETURN 501 "Not Implemented" - Ready for TDD development
+
+4. FRONTEND FOUNDATION
+   - React + Vite project structure created
+   - Tailwind CSS configured via CDN
+   - Leaflet maps library prepared
+   - Basic App.jsx with sticky search bar UI
+   - React Router configured
+   - Proxy to backend configured in vite.config.js
+   - Runs on port 5173
+
+5. PROJECT INFRASTRUCTURE
+   - Created init.sh script for easy setup
+   - Package.json files for server, frontend, and tests
+   - Vitest configuration for testing
+   - All dependencies installable via npm install
+   - Database migration can be applied via psql
+
+6. TEST RESULTS (ALL FAILING AS EXPECTED)
+   Backend auth tests: 7 failed (expected - endpoints not implemented)
+   Backend search tests: 8 failed (expected - endpoints not implemented)
+   Backend CRUD tests: Not run yet (expected to fail)
+   Frontend tests: Not run yet (frontend not fully implemented)
+
+   Example output:
+   "Error: expected 200 'OK', got 501 'Not Implemented'"
+
+   This is CORRECT for TDD - tests define the requirements!
+
+NEXT STEPS FOR IMPLEMENTATION AGENT:
+
+Priority P1 Tasks (Core functionality):
+1. Implement authentication endpoints (POST /v1/signup, POST /v1/signin)
+2. Implement proximity search (GET /v1/search/nearby)
+   - With and without semantic preference
+   - Different radii (1km, 5km)
+   - Integration with Voyage AI for embeddings
+3. Implement business retrieval (GET /v1/business/:id)
+4. Build frontend search UI with map integration
+5. Connect frontend to backend APIs
+
+Priority P2 Tasks (Business management):
+1. Implement business CRUD operations (POST, PUT, DELETE /v1/business)
+2. Add JWT authentication middleware
+3. Build Business tab UI for authenticated users
+4. Implement Add/Edit business forms
+5. Connect business management UI to backend
+
+Priority P3 Tasks (Nice to have):
+1. Postal code to lat/lon conversion
+2. Delete confirmation dialogs
+3. Additional validation and error handling
+
+TECHNICAL NOTES:
+
+Database:
+- Using simplified schema without PostGIS/pgvector extensions
+- embedding_vector stored as TEXT (JSON array) instead of vector(1024)
+- Distance calculations will use Haversine formula in application code
+- In production, should migrate to PostGIS + pgvector for performance
+
+Voyage AI Integration:
+- API key should be read from /tmp/api-key
+- Use voyage-4-lite model for embeddings
+- Generate 1024-dimensional vectors
+- Calculate cosine similarity for semantic ranking
+
+Testing Strategy:
+- Run tests with: npm --prefix functional_tests test
+- Tests are organized by priority (P1, P2, P3)
+- Can run specific tests: npm test -- backend_auth.test.js
+- Frontend tests use Puppeteer for E2E testing
+
+FILES CREATED:
+/data/migration.sql - Database schema and seed data
+/database_setup_summary.md - Database documentation
+/server/ - Backend Express server (index.js, db.js, routes/, package.json)
+/frontend/ - React frontend (src/App.jsx, vite.config.js, package.json)
+/functional_tests/ - All test files and test summary JSON
+/init.sh - Initialization script
+/claude-progress.txt - This file
+
+COMMAND TO START DEVELOPMENT:
+./init.sh - Run this to set up everything
+Then start services as shown in the script output
+
+Current backend server is running on port 3000 (health check passing)
+Database is seeded and ready
+All tests are in place and failing correctly
+
+The implementation agent should work through P1 tests first, making each test pass
+one by one, following strict TDD methodology.
+
+===========================
+=== DEVELOPMENT SESSION 1 ===
+===========================
+Date: 2026-05-31
+Agent: Coding Agent (Implementation)
+Feature Group: Backend Authentication (P1)
+
+ACCOMPLISHMENTS:
+
+✅ BACKEND AUTHENTICATION FULLY IMPLEMENTED (7/7 tests passing)
+
+1. Created JWT Authentication Middleware
+   - File: server/middleware/auth.js
+   - authenticateToken() - Validates Bearer tokens on protected routes
+   - generateToken() - Creates JWT with 7-day expiration
+   - Returns 401 for missing tokens, 403 for invalid/expired tokens
+
+2. Implemented POST /v1/signup Endpoint
+   - User registration with input validation
+   - Password hashing with bcrypt (10 salt rounds)
+   - Duplicate username detection (returns 409 Conflict)
+   - Auto-generates unique user IDs
+   - Returns userId, username, and JWT token
+
+3. Implemented POST /v1/signin Endpoint
+   - Credential validation (username + password required)
+   - Bcrypt password comparison
+   - Returns 401 for invalid credentials
+   - Generates and returns JWT token on success
+
+4. Updated Business Routes with Authentication
+   - GET /v1/business/:id now requires JWT authentication
+   - Applied authenticateToken middleware to protected endpoints
+   - Returns business data from database
+
+5. Fixed Database Issues
+   - Corrected password hashes for test users (john_doe, jane_smith, bob_wilson)
+   - All users now have properly hashed "test123" password
+
+TEST RESULTS:
+✅ All 7 backend_auth.test.js tests PASSING:
+  1. POST /v1/signup - create new user account
+  2. POST /v1/signup - reject duplicate username
+  3. POST /v1/signin - authenticate with correct credentials
+  4. POST /v1/signin - reject incorrect password
+  5. POST /v1/signin - reject non-existent username
+  6. Protected endpoints reject requests without token (401)
+  7. Protected endpoints accept valid JWT token (200)
+
+UPDATED FILES:
+- functional_tests_summary.json - Marked auth tests as PASS
+- server/middleware/auth.js - New JWT middleware
+- server/routes/auth.js - Implemented signup/signin
+- server/routes/business.js - Added authentication
+- .gitignore - Created to exclude node_modules
+
+GIT COMMIT:
+- Commit hash: edcf5c3
+- Message: "Implement backend authentication (P1) - All 7 tests passing"
+
+NEXT STEPS (Recommended Priority Order):
+
+P1 Backend (8 tests remaining):
+1. **backend_search.test.js** - Proximity search with semantic ranking
+   - GET /v1/search/nearby (basic proximity search)
+   - Semantic search with Voyage AI embeddings
+   - Different radii (1km, 5km)
+   - Different preferences yield different rankings
+
+P2 Backend (4 tests):
+2. **backend_business_crud.test.js** - Business management
+   - GET /v1/business/:id (public access version)
+   - POST /v1/business (with Voyage AI embedding generation)
+   - PUT /v1/business/:id (owner verification)
+   - DELETE /v1/business/:id (owner verification)
+
+P1 Frontend (9 tests):
+3. **frontend_search.test.js** - Search UI and map integration
+   - Fix Vite server issues (not running properly)
+   - Build search interface components
+   - Integrate map with Leaflet
+   - Connect to backend search API
+
+P2 Frontend (10 tests):
+4. **frontend_business_management.test.js** - Business owner dashboard
+   - Sign in/sign up UI
+   - Business management interface
+   - Add/edit/delete business forms
+
+TECHNICAL NOTES:
+- Backend server running on port 3000
+- Database seeded and ready
+- JWT tokens expire after 7 days (configurable in .env)
+- Password hash format: bcrypt with 10 salt rounds
+- Test users can sign in with password "test123"
+
+CURRENT STATUS:
+✅ 7 tests passing (backend auth)
+⏳ 38 tests remaining
+📊 Progress: 15.6% complete (7/45 tests)
