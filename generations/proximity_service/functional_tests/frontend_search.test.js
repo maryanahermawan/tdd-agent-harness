@@ -42,12 +42,12 @@ describe('Frontend Search Flow - P1', () => {
     expect(searchButton).toBeTruthy();
   }, TIMEOUT);
 
-  it('should have location and preference input fields', async () => {
+  it('should have postal code and preference input fields', async () => {
     await page.goto(FRONTEND_URL, { waitUntil: 'networkidle0' });
 
-    // Check for location input (could be text input or select)
-    const locationInput = await page.$('input[placeholder*="location" i], input[placeholder*="where" i], input[name*="location" i]');
-    expect(locationInput).toBeTruthy();
+    // Check for postal code input
+    const postalInput = await page.$('input[name*="postal" i], input[placeholder*="postal" i]');
+    expect(postalInput).toBeTruthy();
 
     // Check for preference input
     const preferenceInput = await page.$('input[placeholder*="preference" i], input[placeholder*="what" i], textarea[name*="preference" i]');
@@ -65,10 +65,10 @@ describe('Frontend Search Flow - P1', () => {
   it('should perform search and display results', async () => {
     await page.goto(FRONTEND_URL, { waitUntil: 'networkidle0' });
 
-    // Enter search location
-    const locationInput = await page.$('input[placeholder*="location" i], input[placeholder*="where" i], input[name*="location" i]');
-    if (locationInput) {
-      await locationInput.type('1 Raffles Place, Singapore');
+    // Enter search postal code (Raffles Place, CBD)
+    const postalInput = await page.$('input[name*="postal" i], input[placeholder*="postal" i]');
+    if (postalInput) {
+      await postalInput.type('048616');
     }
 
     // Enter preference
@@ -100,10 +100,10 @@ describe('Frontend Search Flow - P1', () => {
   it('should display map with markers after search', async () => {
     await page.goto(FRONTEND_URL, { waitUntil: 'networkidle0' });
 
-    // Perform a search first
-    const locationInput = await page.$('input[name*="location" i], input[placeholder*="where" i]');
-    if (locationInput) {
-      await locationInput.type('Marina Bay, Singapore');
+    // Perform a search first (Marina Bay Sands)
+    const postalInput = await page.$('input[name*="postal" i], input[placeholder*="postal" i]');
+    if (postalInput) {
+      await postalInput.type('018956');
     }
 
     const searchButton = await page.$('button:has-text("Search")') ||
@@ -121,10 +121,10 @@ describe('Frontend Search Flow - P1', () => {
   it('should open business details when clicking a result', async () => {
     await page.goto(FRONTEND_URL, { waitUntil: 'networkidle0' });
 
-    // Perform search
-    const locationInput = await page.$('input[name*="location" i], input[placeholder*="where" i]');
-    if (locationInput) {
-      await locationInput.type('Central Singapore');
+    // Perform search (CBD - Chulia Street)
+    const postalInput = await page.$('input[name*="postal" i], input[placeholder*="postal" i]');
+    if (postalInput) {
+      await postalInput.type('049513');
     }
 
     const searchButton = await page.$('button:has-text("Search")') ||
@@ -153,9 +153,9 @@ describe('Frontend Search Flow - P1', () => {
   it('should display different results for different preferences', async () => {
     await page.goto(FRONTEND_URL, { waitUntil: 'networkidle0' });
 
-    // First search: cafe preference
-    let locationInput = await page.$('input[name*="location" i], input[placeholder*="where" i]');
-    await locationInput.type('Singapore CBD');
+    // First search: cafe preference (CBD - Chulia Street)
+    let postalInput = await page.$('input[name*="postal" i], input[placeholder*="postal" i]');
+    await postalInput.type('049513');
 
     let preferenceInput = await page.$('input[placeholder*="preference" i], textarea[name*="preference" i]');
     await preferenceInput.type('casual cafe with coffee');
@@ -173,8 +173,8 @@ describe('Frontend Search Flow - P1', () => {
     // Clear and perform second search: restaurant preference
     await page.reload({ waitUntil: 'networkidle0' });
 
-    locationInput = await page.$('input[name*="location" i], input[placeholder*="where" i]');
-    await locationInput.type('Singapore CBD');
+    postalInput = await page.$('input[name*="postal" i], input[placeholder*="postal" i]');
+    await postalInput.type('049513');
 
     preferenceInput = await page.$('input[placeholder*="preference" i], textarea[name*="preference" i]');
     await preferenceInput.type('fine dining restaurant');
@@ -215,13 +215,14 @@ describe('Frontend Search Flow - P1', () => {
   it('should paginate results (5 per page)', async () => {
     await page.goto(FRONTEND_URL, { waitUntil: 'networkidle0' });
 
-    // Perform search with 5km radius to get more results
-    const locationInput = await page.$('input[name*="location" i], input[placeholder*="where" i]');
-    await locationInput.type('Marina Bay Singapore');
+    // Perform search with 5km radius to get more results (Marina Bay Sands)
+    const postalInput = await page.$('input[name*="postal" i], input[placeholder*="postal" i]');
+    await postalInput.type('018956');
 
-    const radius5km = await page.$('input[type="radio"][value="5"]');
-    if (radius5km) {
-      await radius5km.click();
+    // Radius is a <select>; choose 5km to widen the result set
+    const radiusSelect = await page.$('select[name*="radius" i]');
+    if (radiusSelect) {
+      await radiusSelect.select('5');
     }
 
     const searchButton = await page.$('button:has-text("Search")') ||
@@ -234,8 +235,13 @@ describe('Frontend Search Flow - P1', () => {
     const firstPageResults = await page.$$('[class*="result" i], [class*="business" i], [class*="card" i]');
     expect(firstPageResults.length).toBeLessThanOrEqual(5);
 
-    // Look for pagination controls
-    const pagination = await page.$('[class*="pagination" i], [class*="page" i] button, button:has-text("Next")');
-    expect(pagination).toBeTruthy();
+    // Look for pagination controls (Previous / Next buttons or a "Page X of Y" indicator)
+    const hasPagination = await page.evaluate(() => {
+      const buttons = Array.from(document.querySelectorAll('button'));
+      const hasNav = buttons.some(b => /next|previous/i.test(b.textContent));
+      const hasPageIndicator = /page\s+\d+\s+of\s+\d+/i.test(document.body.textContent);
+      return hasNav || hasPageIndicator;
+    });
+    expect(hasPagination).toBe(true);
   }, TIMEOUT * 2);
 });

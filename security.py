@@ -20,6 +20,9 @@ ALLOWED_COMMANDS = {
     "tail",
     "wc",
     "grep",
+    "egrep",
+    "sed",
+    "awk",
     # File operations (agent uses SDK tools for most file ops, but cp/mkdir needed occasionally)
     "cp",
     "mkdir",
@@ -38,6 +41,31 @@ ALLOWED_COMMANDS = {
     "pkill",  # For killing dev servers; validated separately
     # Script execution
     "init.sh",  # Init scripts; validated separately
+    "python3",
+    "pip3",
+    "export",
+    "psql",
+    # Data & Analytics tools
+    "duckdb",
+    "curl",
+    "brew",
+    "env",
+    "echo",
+    "cd",
+    "npx",
+    "pnpx",
+    "date",
+    "test",
+    "xargs",
+    "nohup",
+    "vite",
+    "vitest",
+    "next",
+    "Google Chrome",
+    "find",
+    "which",
+    "paste",
+    "jq",
 }
 
 # Commands that need additional validation even when in the allowlist
@@ -174,6 +202,8 @@ def validate_pkill_command(command_string: str) -> tuple[bool, str]:
         "npx",
         "vite",
         "next",
+        "vitest",
+        "pnpx",
     }
 
     try:

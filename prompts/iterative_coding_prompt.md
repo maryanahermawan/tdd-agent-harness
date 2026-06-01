@@ -2,25 +2,15 @@
 
 You are continuing work on a long-running autonomous development task.
 
+**By now you would have got the context of application to be built. If you do not have any idea, please interrupt human.**
+
 The database is already seeded. Do **NOT** modify the schema or 
 run migrations. Your job is application code only.
 
-### STEP 1: GET YOUR BEARINGS (MANDATORY)
 
-Start by orienting yourself:
+### STEP 1: START SERVERS (IF NOT RUNNING)
 
-
-#### 1. Read the project specification `app_sec.txt` to understand what you're building
-
-#### 2. At the working directory, read functional tests summary at functional_tests/functional_tests_summary.json
-
-#### 3. Read progress notes from previous sessions in the working director claude-progress.txt
-If claude-progress.txt mentions database (DB) schema, DB documentation, read those files.
-
-Understanding the `app_spec.txt` is critical - it contains the full requirements
-for the application you're building.
-
-### STEP 2: START SERVERS (IF NOT RUNNING)
+If servers are running, **skip** this step.
 
 If `init.sh` exists, run it:
 ```bash
@@ -31,7 +21,7 @@ chmod +x init.sh
 Otherwise, start servers manually and document the process.
 
 
-### STEP 3: CHOOSE GROUP OF FEATURE TO IMPLEMENT
+### STEP 2: CHOOSE GROUP OF FEATURE TO IMPLEMENT
 
 Look at functional_tests_summary.json and find the highest-priority features with "status": "FAIL".
 
@@ -48,7 +38,7 @@ Focus on completing one group of feature perfectly and completing its testing st
 It's ok if you only complete one group in this session, as there will be more sessions later that continue to make progress.
 
 
-### STEP 4: IMPLEMENT THE FEATURES
+### STEP 3: IMPLEMENT THE FEATURES
 
 Implement **ONLY** the chosen feature thoroughly:
 1. Write the code (frontend and/or backend as needed)
@@ -57,7 +47,7 @@ Implement **ONLY** the chosen feature thoroughly:
 
 You do **not** need to write unit tests.
 
-### STEP 5: VERIFY WITH BROWSER AUTOMATION
+### STEP 4: VERIFY WITH BROWSER AUTOMATION
 
 **CRITICAL:** You MUST verify features through the actual UI if you implement any *frontend* category
 
@@ -80,7 +70,7 @@ Use browser automation tools:
 - Mark tests passing without thorough verification
 
 
-### STEP 6: UPDATE functional_tests_summary.json (CAREFULLY!)
+### STEP 5: UPDATE functional_tests_summary.json (CAREFULLY!)
 
 **YOU CAN ONLY MODIFY ONE FIELD: "status"**
 
@@ -103,7 +93,7 @@ to:
 **ONLY CHANGE "status" FIELD AFTER RUNNING TEST with PASS.**
 
 
-### STEP 7 COMMIT YOUR PROGRESS
+### STEP 6 COMMIT YOUR PROGRESS
 
 If you create application in working directory, create .gitignore
 to exclude downloaded dependency such as node_modules.
@@ -120,15 +110,16 @@ git commit -m "Implement [feature name] - verified end-to-end
 "
 ```
 
-### STEP 8: UPDATE PROGRESS NOTES
+### STEP 7: UPDATE PROGRESS NOTES
 
 Read `claude-progress.txt` in the working directory and **update** it with:
 - What you accomplished this session
 - Which test(s) you completed
 - What should be worked on next
 **BE CONCISE BUT INCLUDE IMPORTANT INFORMATION FOR THE NEXT DEVELOPMENT WORK**
+  
 
-### STEP 9: END SESSION CLEANLY
+### STEP 8: END SESSION CLEANLY
 
 Before context fills up:
 1. Commit all working code
@@ -156,4 +147,3 @@ Don't use the puppeteer "active tab" tool.
 
 ---
 
-Begin by running Step 1 (Get Your Bearings).

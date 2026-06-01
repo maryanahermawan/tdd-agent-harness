@@ -21,7 +21,7 @@ function App() {
 
   // Search state
   const [searchParams, setSearchParams] = useState({
-    location: '',
+    postalCode: '',
     preference: '',
     radius: '1'
   });
@@ -81,6 +81,14 @@ function App() {
 
   // Initialize map when search results are available
   useEffect(() => {
+    const createColoredIcon = (color) => window.L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+      iconSize: [24, 24],
+      iconAnchor: [12, 24],
+      popupAnchor: [0, -16]
+    });
+
     if (hasSearched && searchCoords && window.L && mapRef.current && !mapInstance.current) {
       const map = window.L.map(mapRef.current).setView([searchCoords.lat, searchCoords.lon], 14);
 
@@ -88,9 +96,9 @@ function App() {
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
 
-      const searchMarker = window.L.marker([searchCoords.lat, searchCoords.lon])
+      window.L.marker([searchCoords.lat, searchCoords.lon], { icon: createColoredIcon('#2563eb') })
         .addTo(map)
-        .bindPopup(`<b>Search Location</b><br/>${searchParams.location}`)
+        .bindPopup(`<b>Search Location</b><br/>${searchParams.postalCode}`)
         .openPopup();
 
       mapInstance.current = map;
@@ -104,7 +112,7 @@ function App() {
       });
 
       searchResults.forEach((business) => {
-        const marker = window.L.marker([business.latitude, business.longitude])
+        const marker = window.L.marker([business.latitude, business.longitude], { icon: createColoredIcon('#dc2626') })
           .addTo(mapInstance.current);
 
         const popupContent = `
@@ -200,18 +208,25 @@ function App() {
     setCurrentPage(1);
 
     try {
-      let lat = 1.2897;
-      let lon = 103.8501;
+      const postalCode = searchParams.postalCode.trim();
 
-      const locationParts = searchParams.location.split(',');
-      if (locationParts.length === 2) {
-        const parsedLat = parseFloat(locationParts[0].trim());
-        const parsedLon = parseFloat(locationParts[1].trim());
-        if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
-          lat = parsedLat;
-          lon = parsedLon;
-        }
+      if (!postalCode) {
+        alert('Please enter a postal code to search');
+        setIsLoading(false);
+        return;
       }
+
+      // Geocode the postal code to coordinates via the backend (OneMap API)
+      const geocodeResponse = await fetch(`${API_BASE}/geocode?postal_code=${encodeURIComponent(postalCode)}`);
+
+      if (!geocodeResponse.ok) {
+        const errorData = await geocodeResponse.json().catch(() => ({}));
+        alert(errorData.error || `Could not find a location for postal code "${postalCode}"`);
+        setIsLoading(false);
+        return;
+      }
+
+      const { latitude: lat, longitude: lon } = await geocodeResponse.json();
 
       setSearchCoords({ lat, lon });
 
@@ -481,10 +496,10 @@ function App() {
                 <form onSubmit={handleSearch} className="flex gap-4">
                   <input
                     type="text"
-                    name="location"
-                    value={searchParams.location}
-                    onChange={(e) => setSearchParams({ ...searchParams, location: e.target.value })}
-                    placeholder="where (e.g., 1.2897,103.8501 or location name)"
+                    name="postalCode"
+                    value={searchParams.postalCode}
+                    onChange={(e) => setSearchParams({ ...searchParams, postalCode: e.target.value })}
+                    placeholder="postal code (e.g., 200640)"
                     className="flex-1 px-4 py-2 border rounded"
                     id="location-input"
                   />
@@ -530,7 +545,7 @@ function App() {
                     Discover nearby places with semantic search powered by AI
                   </p>
                   <p className="text-gray-500">
-                    Enter a location (lat,lon) and preference to search
+                    Enter a postal code and preference to search
                   </p>
                 </div>
               ) : (

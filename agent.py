@@ -13,11 +13,12 @@ from claude_agent_sdk import ClaudeSDKClient
 
 from client import create_client
 from progress import print_turn_header, print_progress_summary
-from prompts import get_initializer_prompt, get_coding_prompt, copy_spec_to_project
+from prompts import copy_spec_to_project, load_prompt
 
 
 # Configuration
 AUTO_CONTINUE_DELAY_SECONDS = 3
+
 
 # At code implementation agent, relevant tests are run for features just developed.
 # Autonomous agent run the entire specifications for regression and as stop condition.
@@ -26,30 +27,33 @@ async def run_test_runner_agent(
     project_dir: Path,
 ) -> bool:
     """
-    Must use a test-runner subagent to run functional tests.
+    Use a test-runner subagent to run functional tests.
     """
-    test_instruction = (
-        "Run all backend and frontend functional tests in functional_tests folder. "
-        "Update summary file functional_tests_summary.json with test result (PASS/FAILED)"
-        "Sequential Execution Preferred: Databases can experience race conditions if multiple tests write to the same table at once."
-    )
+    test_instruction = """
+    You must use a test-runner subagent to run functional tests.
+    Run all backend and frontend functional tests in functional_tests folder.
+    Update summary file functional_tests_summary.json with test result (PASS/FAIL).
+    Sequential Execution Preferred: Databases can experience race conditions if multiple tests write to the same table at once.
+    """
 
     # 1. Run the agent session
     status, result = await run_agent_session(client, test_instruction, project_dir)
-    
+
     # If the agent session itself crashed or error out, tests did not pass
     if status == "error":
         print("⚠️ Test runner agent session encountered an operational error.")
         return False
 
     # 2. Check the actual summary file updated by the agent
-    summary_file_path = project_dir / "functional_tests" / "functional_tests_summary.json"
-    
+    summary_file_path = (
+        project_dir / "functional_tests" / "functional_tests_summary.json"
+    )
+
     try:
         if summary_file_path.exists():
             content = summary_file_path.read_text().upper()
-            
-            if "PASS" in content and "FAILED" not in content:
+
+            if "PASS" in content and "FAIL" not in content:
                 return True
             else:
                 print("❌ Summary file indicates test failures or incomplete runs.")
@@ -57,13 +61,12 @@ async def run_test_runner_agent(
         else:
             print("⚠️ Summary file was not created or found by the agent.")
             return False
-            
+
     except Exception as e:
         print(f"⚠️ Failed to read summary file: {e}")
         return False
 
 
-    
 async def run_agent_session(
     client: ClaudeSDKClient,
     message: str,
@@ -87,23 +90,22 @@ async def run_agent_session(
     try:
         # Send the query
         await client.query(message)
-        
+
         response_text = ""
         async for msg in client.receive_response():
-        # The async for loop keeps running as Claude thinks, calls tools, observes results, 
-        # and decides what to do next.
-        # Each iteration yields a message: Claude’s reasoning, a tool call, a tool result, or the final outcome.
-        # The SDK handles the orchestration (tool execution, context management, retries) so you just consume the stream.
-        # The loop ends when Claude finishes the task or hits an error.
+            # The async for loop keeps running as Claude thinks, calls tools, observes results,
+            # and decides what to do next.
+            # Each iteration yields a message: Claude’s reasoning, a tool call, a tool result, or the final outcome.
+            # The SDK handles the orchestration (tool execution, context management, retries) so you just consume the stream.
+            # The loop ends when Claude finishes the task or hits an error.
             msg_type = type(msg).__name__
-
 
             # Main message types:
             # AssistantMessage – Claude's response with content blocks (text, tool calls, thinking)
             # ResultMessage – Final result with cost, usage, duration, and stop reason
             # UserMessage – User input message (rarely yielded, mainly for reference)
             # SystemMessage – System metadata (e.g., session initialization, compact boundary)
-            
+
             # Handle AssistantMessage (text and tool use)
             if msg_type == "AssistantMessage" and hasattr(msg, "content"):
                 for block in msg.content:
@@ -180,7 +182,6 @@ async def run_autonomous_agent(
     summary_file = project_dir / "functional_tests" / "functional_tests_summary.json"
     is_first_run = not summary_file.exists()
 
-
     if is_first_run:
         print("Fresh start - will use initializer agent")
         print()
@@ -202,10 +203,9 @@ async def run_autonomous_agent(
 
     # Create client (fresh context)
     client = create_client(project_dir, model)
-    
+
     async with client:
         while True:
-            
             iteration += 1
             # Check max iterations
             if max_iterations and iteration > max_iterations:
@@ -218,7 +218,7 @@ async def run_autonomous_agent(
 
             # Choose prompt based on session type
             if is_first_run:
-                prompt = get_initializer_prompt()
+                prompt = "Activate initializer subagent to complete its task"
                 is_first_run = False  # Only use initializer once
             else:
                 all_test_passed = await run_test_runner_agent(client, project_dir)
@@ -226,16 +226,18 @@ async def run_autonomous_agent(
                     print("🎉 All tests passed successfully!")
                     break
                 elif iteration > 1:
-                    prompt = get_coding_prompt
+                    prompt = load_prompt("iterative_coding_prompt")
                 else:
-                    prompt = get_coding_prompt()
+                    prompt = load_prompt("coding_prompt")
 
             # Run session with active connection
             status, response = await run_agent_session(client, prompt, project_dir)
 
             # Handle status
             if status == "success":
-                print(f"\nAgent will auto-continue in {AUTO_CONTINUE_DELAY_SECONDS}s...")
+                print(
+                    f"\nAgent will auto-continue in {AUTO_CONTINUE_DELAY_SECONDS}s..."
+                )
                 print_progress_summary(project_dir)
                 await asyncio.sleep(AUTO_CONTINUE_DELAY_SECONDS)
 
@@ -248,10 +250,13 @@ async def run_autonomous_agent(
             if max_iterations is None or iteration < max_iterations:
                 print("\nPreparing next session...\n")
                 await asyncio.sleep(1)
-                
-            preview = f"{response[:150]}...\n[Truncated]...\n...{response[-150:]}" if len(response) > 400 else response
-            print(f"\n📝 Iteration {iteration} Response Preview:\n{preview}\n")
 
+            preview = (
+                f"{response[:150]}...\n[Truncated]...\n...{response[-150:]}"
+                if len(response) > 400
+                else response
+            )
+            print(f"\n📝 Iteration {iteration} Response Preview:\n{preview}\n")
 
     # Final summary
     print("\n" + "=" * 70)

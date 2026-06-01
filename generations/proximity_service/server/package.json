@@ -9,6 +9,7 @@
     "dev": "nodemon index.js",
     "test": "vitest run",
     "test:watch": "vitest",
+    "backfill-embeddings": "node backfill-embeddings.js",
     "migrate": "node -e \"import('pg').then(({default:pg})=>{const client=new pg.Client('postgres://postgres:postgrespw@localhost:55000/postgres');client.connect().then(()=>client.query(require('fs').readFileSync('../data/migration.sql','utf8'))).then(()=>{console.log('Migration complete');client.end();}).catch(e=>{console.error(e);client.end();process.exit(1);});})\""
   },
   "keywords": [

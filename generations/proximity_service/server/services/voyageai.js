@@ -5,27 +5,39 @@
 
 import fs from 'fs';
 
-// Read API key from file
-const API_KEY_PATH = process.env.VOYAGE_API_KEY_PATH || '/tmp/api-key';
-let apiKey = null;
-
-try {
-  apiKey = fs.readFileSync(API_KEY_PATH, 'utf8').trim();
-} catch (error) {
-  console.warn(`Warning: Could not read Voyage AI API key from ${API_KEY_PATH}`);
-  console.warn('Semantic search will not work without a valid API key');
-}
-
 const VOYAGE_API_URL = 'https://api.voyageai.com/v1/embeddings';
+const VOYAGE_MODEL = 'voyage-4-lite';
 
 /**
- * Generate embedding vector for text using Voyage AI REST API
- * @param {string} text - Text to embed
- * @returns {Promise<number[]>} - 1024-dimensional embedding vector
+ * Resolve the Voyage AI API key lazily.
+ * Read on demand (not at import time) so the key is available after
+ * dotenv.config() runs and so a newly-created key file is picked up.
+ * Supports an inline key (VOYAGE_API_KEY) or a file path (VOYAGE_API_KEY_PATH).
+ * @returns {string|null} - The trimmed API key, or null if not configured
  */
-export async function generateEmbedding(text) {
+function getApiKey() {
+  if (process.env.VOYAGE_API_KEY) {
+    return process.env.VOYAGE_API_KEY.trim();
+  }
+
+  const keyPath = process.env.VOYAGE_API_KEY_PATH || '/tmp/api-key';
+  try {
+    return fs.readFileSync(keyPath, 'utf8').trim();
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Generate embedding vectors for one or more texts in a single Voyage AI
+ * request. Batching keeps request count low (important under rate limits).
+ * @param {string[]} texts - Texts to embed
+ * @returns {Promise<number[][]>} - Embedding vectors, in the same order as texts
+ */
+export async function generateEmbeddings(texts) {
+  const apiKey = getApiKey();
   if (!apiKey) {
-    throw new Error('Voyage AI API key not available');
+    throw new Error('Voyage AI API key not available (set VOYAGE_API_KEY or VOYAGE_API_KEY_PATH)');
   }
 
   try {
@@ -36,14 +48,16 @@ export async function generateEmbedding(text) {
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        input: [text],
-        model: 'voyage-3-lite'
+        input: texts,
+        model: VOYAGE_MODEL
       })
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Voyage AI API error: ${response.status} - ${errorText}`);
+      const error = new Error(`Voyage AI API error: ${response.status} - ${errorText}`);
+      error.status = response.status;
+      throw error;
     }
 
     const data = await response.json();
@@ -52,11 +66,26 @@ export async function generateEmbedding(text) {
       throw new Error('No embedding returned from Voyage AI');
     }
 
-    return data.data[0].embedding;
+    // Return vectors ordered by the request index Voyage assigns to each input
+    return data.data
+      .slice()
+      .sort((a, b) => a.index - b.index)
+      .map(item => item.embedding);
   } catch (error) {
     console.error('Voyage AI embedding error:', error);
+    if (error.status) throw error;
     throw new Error(`Failed to generate embedding: ${error.message}`);
   }
+}
+
+/**
+ * Generate an embedding vector for a single text.
+ * @param {string} text - Text to embed
+ * @returns {Promise<number[]>} - 1024-dimensional embedding vector
+ */
+export async function generateEmbedding(text) {
+  const [embedding] = await generateEmbeddings([text]);
+  return embedding;
 }
 
 /**

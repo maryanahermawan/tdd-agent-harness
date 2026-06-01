@@ -7,12 +7,16 @@ Functions for creating and configuring the Claude Agent SDK client.
 
 import json
 import os
-import subprocess
 
 from pathlib import Path
-from claude_agent_sdk import ClaudeAgentOptions, ClaudeSDKClient, SandboxNetworkConfig, AgentDefinition
+from claude_agent_sdk import (
+    ClaudeAgentOptions,
+    ClaudeSDKClient,
+    SandboxSettings,
+    AgentDefinition,
+)
 from claude_agent_sdk.types import HookMatcher
-
+from prompts import load_prompt
 from security import bash_security_hook
 
 
@@ -36,37 +40,6 @@ BUILTIN_TOOLS = [
     "Grep",
     "Bash",
 ]
-
-
-
-# Inside your Claude SDK tool definition module:
-def execute_terminal_command(command: str):
-    """
-    Executes a shell command on the host machine after explicit user approval.
-    """
-    print(f"\n⚠️  [Claude Agent requested to run a command]:")
-    print(f"👉 \033[1;33m{command}\033[0m") # Prints command in yellow text
-    
-    # The Approval Gate
-    user_input = input("Do you approve this command? (y/n): ").strip().lower()
-    
-    if user_input in ['y', 'yes']:
-        print("🚀 Execution approved by user...")
-        try:
-            # Runs the command and streams the live console output
-            result = subprocess.run(
-                command, 
-                shell=True, 
-                check=True, 
-                text=True,
-                capture_output=True
-            )
-            return {"stdout": result.stdout, "stderr": result.stderr}
-        except subprocess.CalledProcessError as e:
-            return {"error": str(e), "stdout": e.stdout, "stderr": e.stderr}
-    else:
-        print("❌ Execution denied by user.")
-        return {"error": "Permission denied: The user rejected this command."}
 
 
 def create_client(project_dir: Path, model: str) -> ClaudeSDKClient:
@@ -135,11 +108,7 @@ def create_client(project_dir: Path, model: str) -> ClaudeSDKClient:
         options=ClaudeAgentOptions(
             model=model,
             system_prompt="You are an expert full-stack developer building a production-quality web application.",
-            allowed_tools=[
-                *BUILTIN_TOOLS,
-                *PUPPETEER_TOOLS,
-                execute_terminal_command
-            ],
+            allowed_tools=[*BUILTIN_TOOLS, *PUPPETEER_TOOLS],
             mcp_servers={
                 "puppeteer": {"command": "npx", "args": ["puppeteer-mcp-server"]}
             },
@@ -148,11 +117,15 @@ def create_client(project_dir: Path, model: str) -> ClaudeSDKClient:
                     HookMatcher(matcher="Bash", hooks=[bash_security_hook]),
                 ],
             },
-            sandbox_network=SandboxNetworkConfig(allowLocalBinding=True),
+            sandbox=SandboxSettings({"network": {"allowLocalBinding": True}}),
             max_turns=1000,
             cwd=str(project_dir.resolve()),
             settings=str(settings_file.resolve()),  # Use absolute path
             agents={
+                "initializer": AgentDefinition(
+                    description="Initializer agent to get a test driven development (TDD) project started. This agent undestands specification, build and seed database, and write a functional tests to capture the functional requirement.",
+                    prompt=load_prompt("initializer_prompt"),
+                ),
                 "test-runner": AgentDefinition(
                     description="Runs and analyzes test suites inside functional_tests folder. Use for test execution and coverage analysis.",
                     prompt="""You are a test execution specialist. Run tests and provide clear analysis of results.
@@ -162,8 +135,6 @@ def create_client(project_dir: Path, model: str) -> ClaudeSDKClient:
                 - Analyzing test output
                 - Identifying failing tests
                 - Suggesting fixes for failures""",
-                    # Bash access lets this subagent run test commands
-                    tools=["Bash", "Read", "Grep"],
                 ),
             },
         )

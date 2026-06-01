@@ -13,9 +13,9 @@ before proceeding.
 
 ### SECOND: Seed the database
 
-If `data/migration.sql` is present, please **skip** this step.
+If `data/migration.sql` is present inside working directory, please **skip** this step.
 
-Read `database_seeding.md` in your working directory.
+Read `database_seeding.md` in your working directory. If this file does not exist, skip this task.
 Local postgresql is running below.
 postgres://postgres:postgrespw@localhost:55000
 
@@ -27,7 +27,7 @@ Please generate a clean, reproducible setup for my project contributors by doing
 ### IMPORTANT THIRD TASK: WRITE FUNCTIONAL TEST
 
 Based on `app_spec.txt` and `data/migration.sql` from the previous step,
-please write functional tests inside project directory `functional_tests` 
+please write 10 backend functional test and 10 detailed end-to-end (from frontend app) functional tests inside project directory `functional_tests`.
 with summary file of the tests in JSON format `functional_tests_summary.json`.
 
 You can have multiple files based on logical grouping.
@@ -38,7 +38,7 @@ If some APIs other P3 cases have dependency on, those are marked P2 and will nee
 
 You can read and write into Database before each test, so test execution will not depend on previous data.
 
-Run these tests and the results will be `FAILED` at this point of time. The summary file should indicate the status correctly.
+Run these tests and the results will be `FAIL` at this point of time. The summary file should indicate the status correctly.
 
 **Format of summary file:**
 ```json
@@ -52,7 +52,7 @@ Run these tests and the results will be `FAILED` at this point of time. The summ
     "method": "GET",
     "request_payload": {},
     "response_payload": {},
-    "status": "FAILED",
+    "status": "FAIL",
     "_comment": "Implementation agent set status to PASS when done"
   },
   {
@@ -63,7 +63,7 @@ Run these tests and the results will be `FAILED` at this point of time. The summ
     "method": "GET",
     "request_payload": {},
     "response_payload": {},
-    "status": "FAILED",
+    "status": "FAIL",
     "_comment": "Implementation agent set status to PASS when done"
   }
 ]
@@ -96,6 +96,6 @@ Before your context fills up / after you completed other task:
 2. Ensure `functional_tests_summary.json` in `functional_tests` folder is complete and saved
 
 
-The next agent will continue from here with a fresh context window.
+The next agent will continue from here.
 
 

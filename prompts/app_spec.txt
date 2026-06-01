@@ -237,16 +237,6 @@
       3. Do *not* implement the review backend now. Assume submit review is success.
     </submit_review>
 
-    <conversation_management>
-      1. Click "New Chat" to start fresh conversation
-      2. Conversations auto-save with first message
-      3. Auto-generate title from first exchange
-      4. Click title to rename inline
-      5. Drag conversations into folders
-      6. Right-click for context menu (pin, archive, delete, export)
-      7. Search filters conversations in real-time
-      8. Click conversation to switch context
-    </conversation_management>
   </key_interactions>
 
   <implementation_steps>

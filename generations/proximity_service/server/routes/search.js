@@ -8,8 +8,34 @@ import { pool } from '../db.js';
 import { generateEmbedding, cosineSimilarity } from '../services/voyageai.js';
 import { calculateDistance } from '../utils/distance.js';
 import { calculateTextSimilarity } from '../utils/textSimilarity.js';
+import { geocodePostalCode } from '../services/onemap.js';
 
 const router = express.Router();
+
+// GET /v1/geocode - Convert a Singapore postal code to latitude/longitude
+router.get('/geocode', async (req, res) => {
+  const postalCode = (req.query.postal_code || '').trim();
+
+  if (!postalCode) {
+    return res.status(400).json({ error: 'postal_code is required' });
+  }
+
+  try {
+    const location = await geocodePostalCode(postalCode);
+
+    if (!location) {
+      return res.status(404).json({ error: `No location found for postal code "${postalCode}"` });
+    }
+
+    res.status(200).json(location);
+  } catch (error) {
+    console.error('Geocode error:', error);
+    res.status(502).json({
+      error: 'Failed to geocode postal code',
+      details: error.message
+    });
+  }
+});
 
 // GET /v1/search/nearby - Proximity search with optional semantic ranking
 router.get('/search/nearby', async (req, res) => {
@@ -57,52 +83,63 @@ router.get('/search/nearby', async (req, res) => {
 
     // 4. If preference provided, calculate semantic similarity
     if (preference && preference.trim()) {
-      let useEmbeddings = false;
-
-      // Try to use Voyage AI embeddings first
+      // Embed the preference with Voyage AI (voyage-4-lite).
+      let preferenceEmbedding = null;
+      let voyageError = null;
       try {
-        const preferenceEmbedding = await generateEmbedding(preference);
+        preferenceEmbedding = await generateEmbedding(preference);
+      } catch (error) {
+        voyageError = error;
+      }
 
-        // Calculate similarity scores for each business using embeddings
+      if (voyageError) {
+        // A missing key is the only error we degrade for, so environments
+        // without Voyage configured still return (weaker) text-based results.
+        const noKey = !voyageError.status && /API key not available/i.test(voyageError.message);
+
+        if (!noKey) {
+          // Voyage is configured but the request failed (e.g. rate limited).
+          // Fail loudly rather than silently serving worse rankings.
+          const status = voyageError.status === 429 ? 429 : 502;
+          return res.status(status).json({
+            error: status === 429
+              ? 'Semantic search is rate-limited right now. Please try again shortly.'
+              : 'Semantic search is temporarily unavailable.',
+            details: voyageError.message
+          });
+        }
+
+        console.warn('Voyage AI key not configured; using text-based similarity fallback');
+      }
+
+      if (preferenceEmbedding) {
+        // Score each business by cosine similarity against its stored embedding.
         businesses = businesses.map(business => {
           let similarity_score = 0;
 
-          // Parse embedding_vector from JSON string
           if (business.embedding_vector && business.embedding_vector !== '[]') {
             try {
               const businessEmbedding = JSON.parse(business.embedding_vector);
               if (businessEmbedding.length > 0) {
                 similarity_score = cosineSimilarity(preferenceEmbedding, businessEmbedding);
-                useEmbeddings = true;
               }
             } catch (e) {
               console.warn(`Failed to parse embedding for business ${business.id}`);
             }
           }
 
-          return {
-            ...business,
-            similarity_score
-          };
+          return { ...business, similarity_score };
         });
-      } catch (error) {
-        console.warn('Voyage AI embedding not available:', error.message);
-      }
 
-      // Fallback to text similarity if embeddings not available
-      if (!useEmbeddings) {
-        console.log('Using text-based similarity fallback');
-        businesses = businesses.map(business => {
-          const similarity_score = calculateTextSimilarity(
+      } else {
+        // No key configured: text-based similarity fallback.
+        businesses = businesses.map(business => ({
+          ...business,
+          similarity_score: calculateTextSimilarity(
             preference,
             business.semantic_search_blob || business.description || business.name
-          );
-
-          return {
-            ...business,
-            similarity_score
-          };
-        });
+          )
+        }));
       }
 
       // Sort by similarity score (descending), then distance (ascending)
